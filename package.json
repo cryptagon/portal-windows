@@ -1,0 +1,25 @@
+{
+  "name": "windiv",
+  "version": "1.0.0",
+  "description": "render a window as easy as rendering a div",
+  "repository": "https://github.com/cryptagon/windiv",
+  "author": "Cyrus Roshan <cyrusroshan@users.noreply.github.com>",
+  "scripts": {
+    "in_global": "yarn workspace @windiv/global",
+    "in_node": "yarn workspace @windiv/node",
+    "in_renderer": "yarn workspace @windiv/renderer",
+    
+    "tsc": "yarn workspaces foreach -vt --exclude windiv run tsc"
+  },
+  "workspaces": {
+    "packages": [
+      "src/global",
+      "src/node",
+      "src/renderer"
+    ]
+  },
+  "devDependencies": {
+    "typescript": "^4.3.5"
+  },
+  "private": true
+}

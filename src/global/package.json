@@ -1,0 +1,11 @@
+{
+  "name": "@windiv/global",
+  "version": "1.0.0",
+  "description": "global",
+  "main": "src/index.ts",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "tsc": "../../node_modules/.bin/tsc",
+    "test": "jest"
+  }
+}

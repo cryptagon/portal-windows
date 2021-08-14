@@ -1,0 +1,15 @@
+{
+  "name": "@windiv/node",
+  "version": "1.0.0",
+  "description": "node",
+  "main": "src/index.ts",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "tsc": "../../node_modules/.bin/tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@types/electron": "^1.6.10",
+    "electron": "^13.1.9"
+  }
+}
