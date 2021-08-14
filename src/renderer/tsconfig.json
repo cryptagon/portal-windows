@@ -5,5 +5,10 @@
     "rootDir": ".",
     "outDir": "dist",
     "baseUrl": ".",
-  }
+  },
+  "references": [
+    { "path": "../../tsconfig.json" },
+  ],
+  "include": ["core"],
+  "exclude": ["dist"],
 }

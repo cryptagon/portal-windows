@@ -1,4 +1,6 @@
-import { Display, Rectangle, WindowInfoUpdateMessage } from '@tandem/core'
+import {WH, XY} from '@windiv/core'
+
+import {WindowOffset, WindowPosition, WindowPositionCalculationProps, windowPositionCalculationState} from './types'
 
 export function recalculateWindowPosition(props: WindowPositionCalculationProps, state: windowPositionCalculationState): XY {
   // allows for the 'replaceOffsetsOrPosition' BoundsCorrectionStrategy

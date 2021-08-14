@@ -1,20 +1,19 @@
 import { BrowserWindow, screen } from 'electron'
-import { getDoNotDisturb } from 'electron-notification-state'
 
 import {
-    Display, DisplayInfoUpdateMessage, isMac, isWindows, loggerWithPrefix, MouseInfoUpdateMessage,
+    Display, DisplayInfoUpdateMessage, isMac, loggerWithPrefix, MouseInfoUpdateMessage,
     SystemInfoUpdateMessage, WindowFrameName, WindowInfoRequestMessage, WindowInfoSetMessage,
     WindowInfoUpdateMessage, WindowIpcTopic
-} from '@tandem/core'
+} from '@windiv/core'
 
 import * as doNotDisturb from '@sindresorhus/do-not-disturb'
-import { allowOverlaying } from 'utils/overlaying'
+import { allowOverlaying } from './overlaying'
 
-const logger = loggerWithPrefix('[store-listeners]')
+const logWithPrefix = loggerWithPrefix('[store-listeners]')
 
 const debug = process.env.LISTENER_DEBUG
-logger.info(`${debug ? 'Showing' : 'Not showing'} store listener logs. Use $LISTENER_DEBUG to change.`)
-const log = (debug ? logger.info : (any) => {})
+logWithPrefix.info(`${debug ? 'Showing' : 'Not showing'} store listener logs. Use $LISTENER_DEBUG to change.`)
+const log = (debug ? logWithPrefix.info : (any) => {})
 
 export const attachSystemInfoListener = (windowContainingStore: BrowserWindow) => {
   let dndEnabled: boolean = false
@@ -62,14 +61,6 @@ export const attachSystemInfoListener = (windowContainingStore: BrowserWindow) =
         console.log("Couldn't init DND listeners/state:", e)
       }
     }, 1000)
-  } else if (isWindows) {
-    setInterval(() => {
-      const isDndEnabled = getDoNotDisturb()
-      if (isDndEnabled !== dndEnabled) {
-        dndEnabled = isDndEnabled
-        sendSystemInfo()
-      }
-    }, 10_000)
   }
 }
 
@@ -350,6 +341,9 @@ export const attachWindowStoreListener = (trackedWindow: BrowserWindow, frameNam
         }
         if (msg.vibrancy !== undefined) {
           trackedWindow.setVibrancy(msg.vibrancy)
+        }
+        if (msg.zoom !== undefined) {
+          trackedWindow.webContents?.setZoomFactor(msg.zoom)
         }
       }
     } catch (e) {

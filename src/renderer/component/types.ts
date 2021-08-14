@@ -1,15 +1,17 @@
-type WindowOffset = {
+import { Display, WH, Rectangle, WindowInfoUpdateMessage } from "@windiv/core"
+
+export type WindowOffset = {
   units: 'displaySizeMultiple' | 'refElemSizeMultiple' | 'parentWindowSizeMultiple' | 'portalWindowSizeMultiple' | 'px'
   relativeToCustomDisplay?: Display
   value: number
 }
 
-type WindowPosition = {
+export type WindowPosition = {
   relativeTo: 'displayPosition' | 'parentWindowPosition' | 'refElemPosition'
   relativeToCustomDisplay?: Display
 }
 
-type BoundsCorrectionStrategy = {
+export type BoundsCorrectionStrategy = {
   strategyType: 'subtractExcess' | 'replaceOffsetsOrPosition'
 
   applyToOnly?: 'horizontalBounds' | 'verticalBounds'
@@ -37,7 +39,7 @@ export interface WindowPositionCalculationProps {
   boundsCorrectionStrategies: BoundsCorrectionStrategy[],
 }
 
-interface windowPositionCalculationState {
+export interface windowPositionCalculationState {
   wb: WH,
   parentWindowInfo: WindowInfoUpdateMessage
   windowInfo: WindowInfoUpdateMessage

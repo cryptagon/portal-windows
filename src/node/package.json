@@ -9,6 +9,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@sindresorhus/do-not-disturb": "^1.1.0",
     "@types/electron": "^1.6.10",
     "electron": "^13.1.9"
   }

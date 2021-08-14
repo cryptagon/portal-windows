@@ -1,14 +1,10 @@
-import { app, BrowserWindow, BrowserWindowConstructorOptions, ipcMain } from 'electron'
+import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
 import * as path from 'path'
-
-// import {
-//     ElectronTopic, FunctionArgs, isWindows, OverlayingProps, WindowFrameName
-// } from '@tandem/core'
 
 // import { listenToSwitchHost } from 'utils/listeners'
 import { allowOverlaying } from './overlaying'
 import { attachWindowStoreListener } from './store-listeners'
-import { WindowFrameName } from '@windev/global'
+import { WindowFrameName, OverlayingProps, isWindows } from '@windiv/core'
 
 export class GenericPortalWindow {
   focused: boolean
@@ -70,12 +66,12 @@ export class GenericPortalWindow {
 
     attachWindowStoreListener(win, frameName, win)
 
-    listenToSwitchHost(() => this.window, '', async () => {
-      if (this.window) {
-        this.window.destroy()
-        this.window = null
-      }
-    }, true)
+    // listenToSwitchHost(() => this.window, '', async () => {
+    //   if (this.window) {
+    //     this.window.destroy()
+    //     this.window = null
+    //   }
+    // }, true)
 
     this.window = win
     return win

@@ -1,14 +1,11 @@
 import create, { GetState, SetState } from 'zustand'
 
-import { authActions } from '@tandem/api'
-import { appService } from '@tandem/app'
-import { callUIActions, callUIApi } from '@tandem/calls'
-import {
-    debounce, DebounceStyle, deepCompareIntersection, Display, DisplayInfoUpdateMessage, isDesktop,
-    isMac, logger, minAppVersion, MouseInfoUpdateMessage, PanelMode, Point, PubSubAction, Rectangle,
-    SystemInfoUpdateMessage, TandemWindow, WindowFrameName, WindowInfoRequestMessage,
-    WindowInfoSetMessage, WindowInfoUpdateMessage, WindowIpcTopic
-} from '@tandem/core'
+import { deepCompareIntersection, Display, DisplayInfoUpdateMessage,
+     MouseInfoUpdateMessage, Rectangle,
+    SystemInfoUpdateMessage,  WindowFrameName, WindowInfoRequestMessage,
+    WindowInfoSetMessage, WindowInfoUpdateMessage, WindowIpcTopic,
+    loggerWithPrefix
+} from '@windiv/core'
 
 export type WindowStore = {
   windows: { [frameName in WindowFrameName]?: Window }
@@ -24,21 +21,19 @@ export type WindowStore = {
 
 const DEBUG = false
 
-enum DimensionConstraint {
-  NONE = 0,
-  WIDTH_LIMIT,
-  HEIGHT_LIMIT,
-}
+const SHOW_DEV = true
+
+const logger = loggerWithPrefix('[windowStore]')
 
 class WindowActions {
   constructor(public set: SetState<WindowStore>, public get: GetState<WindowStore>) {}
 
   rootFrameName: WindowFrameName // assuming windows with empty name are the root frame, portal windows seem to have the proper name
   init = (frameName: WindowFrameName) => {
-    if (authActions.showDevActions()) window['windowStore'] = this
+    if (SHOW_DEV) window['windowStore'] = this
 
     this.rootFrameName = frameName
-    logger.info(`WINDOWSTORE —— initializing ${frameName}`)
+    logger.info(`initializing ${frameName}`)
     this.subscribeWindow(frameName, window)
 
 
@@ -48,7 +43,7 @@ class WindowActions {
 
     setTimeout(() => {
       window.electronSubscribe(WindowIpcTopic.UPDATE_DISPLAY_INFO, (_, value: DisplayInfoUpdateMessage) => {
-        if (DEBUG) logger.debug(`WINDOWSTORE —— received display update on ${frameName}:`, value)
+        if (DEBUG) logger.debug(`received display update on ${frameName}:`, value)
         this.set(({
           displayInfo: value.displays.reduce((prev, curr) => {
             prev[curr.id] = curr
@@ -57,21 +52,21 @@ class WindowActions {
           primaryDisplayId: value.primaryDisplayId,
         }))
       })
-      if (DEBUG) logger.info(`WINDOWSTORE —— request display info from ${frameName}`)
+      if (DEBUG) logger.info(`request display info from ${frameName}`)
       window.electronPublish(WindowIpcTopic.REQUEST_DISPLAY_INFO)
 
       window.electronSubscribe(WindowIpcTopic.UPDATE_MOUSE_INFO, (_, value: MouseInfoUpdateMessage) => {
-        if (DEBUG) logger.debug(`WINDOWSTORE —— received mouse update on ${frameName}:`, value)
+        if (DEBUG) logger.debug(`received mouse update on ${frameName}:`, value)
         this.set(({ mouseInfo: value }))
       })
-      if (DEBUG) logger.info(`WINDOWSTORE —— request mouse info from ${frameName}`)
+      if (DEBUG) logger.info(`request mouse info from ${frameName}`)
       window.electronPublish(WindowIpcTopic.REQUEST_MOUSE_INFO)
 
       window.electronSubscribe(WindowIpcTopic.UPDATE_SYSTEM_INFO, (_, value: SystemInfoUpdateMessage) => {
-        if (DEBUG) logger.debug(`WINDOWSTORE —— received system update on ${frameName}:`, value)
+        if (DEBUG) logger.debug(`received system update on ${frameName}:`, value)
         this.set(({ systemInfo: value }))
       })
-      if (DEBUG) logger.info(`WINDOWSTORE —— request system info from ${frameName}`)
+      if (DEBUG) logger.info(`request system info from ${frameName}`)
       window.electronPublish(WindowIpcTopic.REQUEST_SYSTEM_INFO)
     }, 1000)
   }
@@ -94,11 +89,10 @@ class WindowActions {
       return
     }
 
-    if (DEBUG) logger.info(`WINDOWSTORE —— sending update to ${frameName}:`, update)
+    if (DEBUG) logger.info(`sending update to ${frameName}:`, update)
     win.electronPublish(WindowIpcTopic.SET_WINDOW_INFO, {...update, frameName})
   }
 
-  private dimensionConstraint = DimensionConstraint.NONE
   private updateWindowInfo(frameName: WindowFrameName, info: Partial<WindowInfoUpdateMessage>): boolean {
     const existingInfo = this.get().windowInfo[frameName]
     if (existingInfo && deepCompareIntersection(existingInfo, info)) {
@@ -110,37 +104,12 @@ class WindowActions {
       windowInfo: Object.assign({}, s.windowInfo, {[frameName]: newInfo})
     }))
 
-    if (frameName === WindowFrameName.PANEL_WINDOW) {
-      debounce('force-large-panel-min-size', () => {
-        const minPanelSize = { width: 200, height: 200 }
-        const bounds = this.get().windowInfo[frameName]?.bounds
-        if (!bounds) {
-          return
-        }
-
-        if (callUIApi.getState().panelMode === PanelMode.MINI) {
-          this.dimensionConstraint = DimensionConstraint.NONE
-          return
-        }
-
-        if (bounds.height < bounds.width) {
-          if (this.dimensionConstraint !== DimensionConstraint.HEIGHT_LIMIT) {
-            this.dimensionConstraint = DimensionConstraint.HEIGHT_LIMIT
-            appService.setWindowFlags({ window: TandemWindow.CALL, minWidth: minPanelSize.width, minHeight: 100 })
-          }
-        } else if (this.dimensionConstraint !== DimensionConstraint.WIDTH_LIMIT) {
-          this.dimensionConstraint = DimensionConstraint.WIDTH_LIMIT
-          appService.setWindowFlags({ window: TandemWindow.CALL, minWidth: 100, minHeight: minPanelSize.height })
-        }
-      }, 200, DebounceStyle.IGNORE_NEW)
-    }
-
     return true
   }
 
   subscribeWindow = (frameName: WindowFrameName, win: Window, proxied?: boolean) => {
     if (!win) return
-    if (DEBUG) logger.info(`WINDOWSTORE —— subscribed to changes from ${frameName}. Closed: ${win.closed}`)
+    if (DEBUG) logger.info(`subscribed to changes from ${frameName}. Closed: ${win.closed}`)
 
     if (!proxied) {
       this.get().windows[frameName] = win
@@ -155,13 +124,13 @@ class WindowActions {
 
       if (!proxied) {
         win.electronSubscribe(WindowIpcTopic.UPDATE_WINDOW_INFO, (_, value: WindowInfoUpdateMessage) => {
-          if (DEBUG) logger.debug(`WINDOWSTORE —— received update to ${frameName} (${value.frameName}):`, value)
+          if (DEBUG) logger.debug(`received update to ${frameName} (${value.frameName}):`, value)
           const applyUpdate = this.updateWindowInfo(value.frameName, value)
-          if (applyUpdate && DEBUG) logger.debug(`WINDOWSTORE —— applied update to ${value.frameName}:`, value)
+          if (applyUpdate && DEBUG) logger.debug(`applied update to ${value.frameName}:`, value)
         })
       }
 
-      if (DEBUG) logger.info(`WINDOWSTORE —— request info from ${frameName}`)
+      if (DEBUG) logger.info(`request info from ${frameName}`)
       const requestMsg: WindowInfoRequestMessage = {
         frameName: frameName,
       }
@@ -239,28 +208,3 @@ export function fitWindowInBounds(windowBounds: Rectangle, displayBounds: Rectan
 
   return {update, newBounds}
 }
-
-PubSub.subscribe(PubSubAction.INIT_CALL, () => {
-  if (windowActions.rootFrameName === WindowFrameName.PANEL_WINDOW) {
-    if (isMac && minAppVersion('1.5.10104')) { // when the main app is fullscreen, opening the callbox sometimes runs into issues where it's in the right place, but hidden
-      windowActions.setWindowInfo(WindowFrameName.PANEL_WINDOW, { visibility: { show: true, focus: false } })
-    }
-
-    windowActions.setWindowInfo(WindowFrameName.PANEL_WINDOW, { backgroundThrottling: false })
-  }
-})
-
-PubSub.subscribe(PubSubAction.LEAVE_CALL, () => {
-  if (windowActions.rootFrameName === WindowFrameName.PANEL_WINDOW) {
-    windowActions.setWindowInfo(WindowFrameName.PANEL_WINDOW, { backgroundThrottling: true })
-  }
-})
-
-PubSub.subscribe(PubSubAction.OPEN_CHAT, () => {
-  if (windowActions.rootFrameName === WindowFrameName.PANEL_WINDOW || !isDesktop) {
-    callUIActions.toggleChatPanel(true)
-    if (callUIApi.getState().panelMode !== PanelMode.MINI && (document.body.clientHeight < 300 || document.body.clientWidth < 500)) {
-      windowActions.setWindowInfo(window, { bounds: { width: Math.max(document.body.clientWidth, 500), height: Math.max(document.body.clientHeight, 300) } })
-    }
-  }
-})

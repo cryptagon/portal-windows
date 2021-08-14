@@ -1,3 +1,4 @@
+// Electron API typedefs here so we can use the structs in the frontend, without requiring the Electron package
 namespace Electron {
   export interface Display {
 

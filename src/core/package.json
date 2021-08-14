@@ -1,7 +1,7 @@
 {
-  "name": "@windiv/global",
+  "name": "@windiv/core",
   "version": "1.0.0",
-  "description": "global",
+  "description": "core",
   "main": "src/index.ts",
   "types": "dist/src/index.d.ts",
   "scripts": {

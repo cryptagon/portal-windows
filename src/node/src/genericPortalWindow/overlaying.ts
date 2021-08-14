@@ -1,8 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 
-import { debounce, DebounceStyle, OverlayingProps, WindowIpcTopic } from '@tandem/core'
-
-import { show_dock } from 'main/main'
+import { debounce, DebounceStyle, OverlayingProps, WindowIpcTopic } from '@windiv/core'
 
 export const DOCK_DEBOUNCE = 'dock-show'
 const DISABLE_OVERLAYING = process.env.DISABLE_OVERLAYING
@@ -25,7 +23,7 @@ export function allowOverlaying(
   windowsToMessage.push(win)
 
   debounce(DOCK_DEBOUNCE, () => {
-    if (show_dock) {
+    if (global['show_dock'] !== false) {
       // [OSX] and now we restore the dock, but prevent it being called multiple times
       app.dock?.show()
 

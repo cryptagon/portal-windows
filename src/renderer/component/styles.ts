@@ -1,4 +1,4 @@
-import { loggerWithPrefix } from '@tandem/core'
+import { loggerWithPrefix } from '@windiv/core'
 
 const log = loggerWithPrefix(`[reactPortalWindow]`)
 

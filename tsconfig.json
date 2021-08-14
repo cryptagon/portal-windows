@@ -14,7 +14,7 @@
     "esModuleInterop": true,
     "jsx": "react",
     "lib": ["es2017", "dom"],
-    "typeRoots": ["src/global/@types", "node_modules/@types"]
+    "typeRoots": ["src/core/@types", "node_modules/@types"]
   },
   "exclude": ["node_modules"]
 }
