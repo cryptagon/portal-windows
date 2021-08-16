@@ -8,7 +8,7 @@
     "in_core": "yarn workspace @portal-windows/core",
     "in_node": "yarn workspace @portal-windows/node",
     "in_renderer": "yarn workspace @portal-windows/renderer",
-    "tsc": "yarn workspaces foreach -vt --exclude portal-windows run tsc"
+    "tsc": "yarn workspaces foreach -vt --exclude portal-windows run tsc --build"
   },
   "workspaces": {
     "packages": [
