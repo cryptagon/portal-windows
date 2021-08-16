@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom'
 import {
     clearDebounce, debounce, DebounceStyle, isMac, loggerWithPrefix,
     Rectangle, WindowFrameName, WindowInfoSetMessage, WindowIpcTopic
-} from '@windiv/core'
+} from '@portal-windows/core'
 
 import { useUpdatedRef } from './utils'
 import { setStyles } from './styles'

@@ -1,5 +1,5 @@
 {
-  "name": "@windiv/node",
+  "name": "@portal-windows/node",
   "version": "1.0.0",
   "description": "node",
   "main": "src/index.ts",

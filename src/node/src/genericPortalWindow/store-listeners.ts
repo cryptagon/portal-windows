@@ -4,7 +4,7 @@ import {
     Display, DisplayInfoUpdateMessage, isMac, loggerWithPrefix, MouseInfoUpdateMessage,
     SystemInfoUpdateMessage, WindowFrameName, WindowInfoRequestMessage, WindowInfoSetMessage,
     WindowInfoUpdateMessage, WindowIpcTopic
-} from '@windiv/core'
+} from '@portal-windows/core'
 
 import * as doNotDisturb from '@sindresorhus/do-not-disturb'
 import { allowOverlaying } from './overlaying'

@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 
-import { debounce, DebounceStyle, OverlayingProps, WindowIpcTopic } from '@windiv/core'
+import { debounce, DebounceStyle, OverlayingProps, WindowIpcTopic } from '@portal-windows/core'
 
 export const DOCK_DEBOUNCE = 'dock-show'
 const DISABLE_OVERLAYING = process.env.DISABLE_OVERLAYING

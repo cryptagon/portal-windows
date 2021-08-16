@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron'
 
-import { WindowIpcTopic } from '@windiv/core'
+import { WindowIpcTopic } from '@portal-windows/core'
 
 window.electronPublish = (msg: WindowIpcTopic, ...args) => {
   try {

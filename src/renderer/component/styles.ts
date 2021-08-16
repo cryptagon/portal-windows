@@ -1,4 +1,4 @@
-import { loggerWithPrefix } from '@windiv/core'
+import { loggerWithPrefix } from '@portal-windows/core'
 
 const log = loggerWithPrefix(`[reactPortalWindow]`)
 

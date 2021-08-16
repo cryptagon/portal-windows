@@ -1,4 +1,4 @@
-# windiv
+# portal-windows
 render a window, as easy as rendering a div
 
 ```

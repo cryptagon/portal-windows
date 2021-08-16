@@ -1,4 +1,4 @@
-import {WH, XY} from '@windiv/core'
+import {WH, XY} from '@portal-windows/core'
 
 import {WindowOffset, WindowPosition, WindowPositionCalculationProps, windowPositionCalculationState} from './types'
 

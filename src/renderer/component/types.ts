@@ -1,4 +1,4 @@
-import { Display, WH, Rectangle, WindowInfoUpdateMessage } from "@windiv/core"
+import { Display, WH, Rectangle, WindowInfoUpdateMessage } from "@portal-windows/core"
 
 export type WindowOffset = {
   units: 'displaySizeMultiple' | 'refElemSizeMultiple' | 'parentWindowSizeMultiple' | 'portalWindowSizeMultiple' | 'px'

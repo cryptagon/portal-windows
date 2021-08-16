@@ -1,5 +1,5 @@
 {
-  "name": "@windiv/renderer",
+  "name": "@portal-windows/renderer",
   "version": "1.0.0",
   "description": "renderer",
   "main": "src/index.ts",

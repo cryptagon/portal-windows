@@ -4,7 +4,7 @@ import * as path from 'path'
 // import { listenToSwitchHost } from 'utils/listeners'
 import { allowOverlaying } from './overlaying'
 import { attachWindowStoreListener } from './store-listeners'
-import { WindowFrameName, OverlayingProps, isWindows } from '@windiv/core'
+import { WindowFrameName, OverlayingProps, isWindows } from '@portal-windows/core'
 
 export class GenericPortalWindow {
   focused: boolean

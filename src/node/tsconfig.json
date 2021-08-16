@@ -8,7 +8,7 @@
     "types": ["electron", "node", "preload"],
     "typeRoots": ["../core/@types", "../node_modules/@types"],
     "paths": {
-      "@windiv/core": ["../core/src"],
+      "@portal-windows/core": ["../core/src"],
     },
   },
   "references": [

@@ -5,7 +5,7 @@ import { deepCompareIntersection, Display, DisplayInfoUpdateMessage,
     SystemInfoUpdateMessage,  WindowFrameName, WindowInfoRequestMessage,
     WindowInfoSetMessage, WindowInfoUpdateMessage, WindowIpcTopic,
     loggerWithPrefix
-} from '@windiv/core'
+} from '@portal-windows/core'
 
 export type WindowStore = {
   windows: { [frameName in WindowFrameName]?: Window }

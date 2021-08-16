@@ -198,6 +198,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@portal-windows/core@workspace:src/core":
+  version: 0.0.0-use.local
+  resolution: "@portal-windows/core@workspace:src/core"
+  languageName: unknown
+  linkType: soft
+
+"@portal-windows/node@workspace:src/node":
+  version: 0.0.0-use.local
+  resolution: "@portal-windows/node@workspace:src/node"
+  dependencies:
+    "@sindresorhus/do-not-disturb": ^1.1.0
+    "@types/electron": ^1.6.10
+    electron: ^13.1.9
+  languageName: unknown
+  linkType: soft
+
+"@portal-windows/renderer@workspace:src/renderer":
+  version: 0.0.0-use.local
+  resolution: "@portal-windows/renderer@workspace:src/renderer"
+  dependencies:
+    "@types/react": ^17.0.17
+    "@types/react-dom": ^17.0.9
+    "@types/styled-components": ^5.1.12
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    styled-components: ^5.3.0
+    zustand: 0.2.2
+  languageName: unknown
+  linkType: soft
+
 "@sindresorhus/do-not-disturb@npm:^1.1.0":
   version: 1.1.0
   resolution: "@sindresorhus/do-not-disturb@npm:1.1.0"
@@ -319,36 +349,6 @@ __metadata:
   checksum: f7ea1edbcd6ed24f7223f8f311bd33e3f1b832783a8e7fb6e180b9e6b5e57d72cd864b8cab8f334d047a6823589e086707c430a3de9d1c3e262ed49afc368a15
   languageName: node
   linkType: hard
-
-"@windiv/core@workspace:src/core":
-  version: 0.0.0-use.local
-  resolution: "@windiv/core@workspace:src/core"
-  languageName: unknown
-  linkType: soft
-
-"@windiv/node@workspace:src/node":
-  version: 0.0.0-use.local
-  resolution: "@windiv/node@workspace:src/node"
-  dependencies:
-    "@sindresorhus/do-not-disturb": ^1.1.0
-    "@types/electron": ^1.6.10
-    electron: ^13.1.9
-  languageName: unknown
-  linkType: soft
-
-"@windiv/renderer@workspace:src/renderer":
-  version: 0.0.0-use.local
-  resolution: "@windiv/renderer@workspace:src/renderer"
-  dependencies:
-    "@types/react": ^17.0.17
-    "@types/react-dom": ^17.0.9
-    "@types/styled-components": ^5.1.12
-    react: ^17.0.2
-    react-dom: ^17.0.2
-    styled-components: ^5.3.0
-    zustand: 0.2.2
-  languageName: unknown
-  linkType: soft
 
 "ansi-styles@npm:^3.2.1":
   version: 3.2.1
@@ -1115,6 +1115,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"portal-windows@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "portal-windows@workspace:."
+  dependencies:
+    typescript: ^4.3.5
+  languageName: unknown
+  linkType: soft
+
 "postcss-value-parser@npm:^4.0.2":
   version: 4.1.0
   resolution: "postcss-value-parser@npm:4.1.0"
@@ -1469,14 +1477,6 @@ typescript@^4.3.5:
   checksum: 1a5c563d3c1b52d5f893c8b61afe11abc3bab4afac492e8da5bde69d550de701cf9806235f20a47b5c8fa8a1d6a9135841de2596535e998027a54589000e66d1
   languageName: node
   linkType: hard
-
-"windiv@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "windiv@workspace:."
-  dependencies:
-    typescript: ^4.3.5
-  languageName: unknown
-  linkType: soft
 
 "wrappy@npm:1":
   version: 1.0.2
