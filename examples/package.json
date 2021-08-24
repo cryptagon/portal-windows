@@ -1,0 +1,11 @@
+{
+  "name": "@portal-windows/examples",
+  "version": "1.0.0",
+  "description": "examples",
+  "main": "src/node.ts",
+  "types": "dist/src/node.d.ts",
+  "scripts": {
+    "tsc": "../node_modules/.bin/tsc",
+    "test": "jest"
+  }
+}
