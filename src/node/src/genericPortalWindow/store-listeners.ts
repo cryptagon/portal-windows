@@ -9,11 +9,11 @@ import {
 import * as doNotDisturb from '@sindresorhus/do-not-disturb'
 import { allowOverlaying } from './overlaying'
 
-const logWithPrefix = loggerWithPrefix('[store-listeners]')
+const logger = loggerWithPrefix('[store-listeners]')
 
 const debug = process.env.LISTENER_DEBUG
-logWithPrefix.info(`${debug ? 'Showing' : 'Not showing'} store listener logs. Use $LISTENER_DEBUG to change.`)
-const log = (debug ? logWithPrefix.info : (any) => {})
+logger.info(`${debug ? 'Showing' : 'Not showing'} store listener logs. Use $LISTENER_DEBUG to change.`)
+const log = (debug ? logger.info : (any) => {})
 
 export const attachSystemInfoListener = (windowContainingStore: BrowserWindow) => {
   let dndEnabled: boolean = false
@@ -158,6 +158,7 @@ export const attachWindowStoreListener = (trackedWindow: BrowserWindow, frameNam
 
   const onceMap = new Map<string, boolean>()
   let shown = false
+  let capturerCount = 0
   receivingWindow.webContents.on('ipc-message', (event: Electron.Event, channel: string, ...args: any[]) => {
     try {
       const msg: WindowInfoRequestMessage = args.length ? args[0] : undefined
@@ -256,8 +257,19 @@ export const attachWindowStoreListener = (trackedWindow: BrowserWindow, frameNam
           }
         }
 
-        if (msg.backgroundThrottling !== undefined) {
-          trackedWindow.webContents?.setBackgroundThrottling?.(msg.backgroundThrottling)
+        if (msg.backgroundThrottling !== undefined && trackedWindow.webContents?.setBackgroundThrottling) {
+          const { capturerProps } = msg.backgroundThrottling
+          if (capturerProps) { // Otherwise can cause issues on Windows: https://github.com/electron/electron/issues/22670
+            if (msg.backgroundThrottling.allowed) {
+              trackedWindow.webContents.incrementCapturerCount(capturerProps.size, capturerProps.stayHidden)
+              capturerCount++
+            } else if (capturerCount > 0) {
+              trackedWindow.webContents.decrementCapturerCount(capturerProps.stayHidden)
+              capturerCount--
+            }
+          }
+
+          trackedWindow.webContents.setBackgroundThrottling(msg.backgroundThrottling.allowed)
         }
 
         if (msg.focusable !== undefined) {
@@ -341,9 +353,6 @@ export const attachWindowStoreListener = (trackedWindow: BrowserWindow, frameNam
         }
         if (msg.vibrancy !== undefined) {
           trackedWindow.setVibrancy(msg.vibrancy)
-        }
-        if (msg.zoom !== undefined) {
-          trackedWindow.webContents?.setZoomFactor(msg.zoom)
         }
       }
     } catch (e) {

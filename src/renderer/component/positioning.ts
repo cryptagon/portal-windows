@@ -60,11 +60,8 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
       if (!state.refElem) {
         throw('offset is relative to parent element, but we have no reference to the parent element')
       }
-      const refElemBounds = state.refElem.getBoundingClientRect()
-      if (state.refElem.ownerDocument !== window.document) { // the window this is executed in is the parent window, in this case
-        throw('using refs from other windows is not yet supported')
-      }
 
+      const refElemBounds = state.refElem.getBoundingClientRect()
       const zoom = state.parentWindowInfo.zoomFactor
       if (zoom && zoom !== 1) {
         refElemBounds.height *= zoom

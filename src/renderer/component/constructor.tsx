@@ -1,20 +1,18 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import * as ReactDOM from 'react-dom'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import * as ReactDOM from 'react-dom';
+import { StyleSheetManager } from 'styled-components';
 
 import {
-    clearDebounce, debounce, DebounceStyle, isMac, loggerWithPrefix,
-    Rectangle, WindowFrameName, WindowInfoSetMessage, WindowIpcTopic
-} from '@portal-windows/core'
+    clearDebounce, debounce, DebounceStyle, isMac, loggerWithPrefix, Rectangle, WindowFrameName,
+    WindowInfoSetMessage, WindowIpcTopic
+} from '@portal-windows/core';
 
-import { useUpdatedRef } from './utils'
-import { setStyles } from './styles'
-import {
-    recalculateWindowPosition
-} from './positioning'
-import { WindowPositionCalculationProps} from './types'
-import { useWindowStore, windowApi, windowActions } from '../stores/windowStore'
-
-import { StyleSheetManager } from 'styled-components'
+import { useWindowStore, windowApi } from '../stores/windowStore';
+import { recalculateWindowPosition } from './positioning';
+import { setStyles } from './styles';
+import { WindowPositionCalculationProps } from './types';
+import { useWindow, WindowContext } from './useWindow';
+import { useUpdatedRef } from './utils';
 
 type updateType = {
   dom?: boolean,
@@ -33,9 +31,9 @@ export type PortalComponentProps = {
   referenceElement?: React.RefObject<Element>
   children: any
 
-  // Update this to Date.now() or the new value whenever you want to
-  // reposition due to a reference display/element/etc change,
-  // which will trigger a reposition
+  /** Update this to Date.now() or the new value whenever you want to
+      reposition due to a reference display/element/etc change,
+      which will trigger a reposition */
   manualReferenceChange?: any
 
   autoResizeWindowToContents?: boolean
@@ -44,6 +42,9 @@ export type PortalComponentProps = {
 
   onFirstShow?: () => void
   takeFocus?: boolean
+
+  /** (advanced) Pass this in, if you're re-using a window for multiple independent components */
+  forceHide?: () => void
 } & WindowPositionCalculationProps
 
 export type PortalResult = {
@@ -62,7 +63,7 @@ export type PortalConstructorProps = {
 export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResult => {
   const { frameName, parentFrameName, initialMessage, options, windowOptionsString } = props
 
-  const log = loggerWithPrefix(`[reactPortalWindow] [${frameName}]`)
+  const log = loggerWithPrefix(`[reactPortalWindow] [${frameName}] (init)`)
   const logIfDebug = (...args: any[]) => {
     if (window['portalDebug']) {
       log.info(...args)
@@ -103,7 +104,6 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
     return null
   }
 
-  windowActions.setWindowInfo(frameName, {frameName, zoom: 1})
   win.document.title = frameName
   win.onclose = () => {
     delete windowApi.getState().windows[frameName]
@@ -113,11 +113,28 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
   let next = () => {
     const msg: WindowInfoSetMessage = {
       ...initialMessage,
+      zoom: 1,
       frameName: frameName,
     }
     win.electronPublish(WindowIpcTopic.SET_WINDOW_INFO, {...msg, onceId: 'id_' + JSON.stringify(msg, null, '') } as WindowInfoSetMessage)
   }
   windowApi.getState().actions.pingWindow(frameName).then(next, next)
+
+  // TODO: find a better name for this
+  // basically, it forces only one DOM to be rendered to the window
+  // at a given time (but it's a stopgap measure, if everything else fails)
+  let existingHide: () => void = null
+
+  const addHide = (forceHide: () => void) => {
+    if (existingHide) {
+      existingHide()
+    }
+    existingHide = forceHide
+  }
+
+  const removeHide = () => {
+    existingHide = null
+  }
 
   const ReactPortalComponent = (props: PortalComponentProps) => {
     const inPlaceRef = useRef<HTMLDivElement>()
@@ -130,6 +147,7 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
       s.windowInfo[frameName],
       s.windowInfo[parentFrameName],
     ])
+    const parentWindow = useWindow()
     const ref = props.referenceElement || inPlaceRef
     const [firstDomUpdate, setFirstDomUpdate] = useState(0)
     const [constructed, setConstructed] = useState(false)
@@ -326,13 +344,13 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
           setWindowInfo(frameName, { frameName: frameName, visibility: { show: false }})
         }
       }
-      window.addEventListener('beforeunload', hideWindow)
+      parentWindow.addEventListener('beforeunload', hideWindow)
 
       return function componentWillUnmount() {
         clearDebounce(firstShowDebounceId)
         log.debug(`hiding portal window`)
         hideWindow()
-        window.removeEventListener('beforeunload', hideWindow)
+        parentWindow.removeEventListener('beforeunload', hideWindow)
       }
     }, [])
 
@@ -351,13 +369,20 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
       return () => { observer.disconnect() }
     }, [firstChild])
 
+    useLayoutEffect(() => {
+      addHide(props.forceHide)
+      return () => removeHide()
+    }, [props.forceHide])
+
     const contents = <StyleSheetManager target={win.document.head}>
       {props.children}
     </StyleSheetManager>
 
-    return <div ref={inPlaceRef}>
-      {ReactDOM.createPortal(contents, win.document.body)}
-    </div>
+    return <WindowContext.Provider value={win as Window & typeof globalThis}>
+      <div ref={inPlaceRef}>
+        {ReactDOM.createPortal(contents, win.document.body)}
+      </div>
+    </WindowContext.Provider>
   }
 
   return {
@@ -365,4 +390,3 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
     win: win,
   }
 }
-

@@ -1,10 +1,10 @@
 import create, { GetState, SetState } from 'zustand'
 
-import { deepCompareIntersection, Display, DisplayInfoUpdateMessage,
-     MouseInfoUpdateMessage, Rectangle,
-    SystemInfoUpdateMessage,  WindowFrameName, WindowInfoRequestMessage,
-    WindowInfoSetMessage, WindowInfoUpdateMessage, WindowIpcTopic,
-    loggerWithPrefix
+import {
+    deepCompareIntersection, Display, DisplayInfoUpdateMessage,
+   MouseInfoUpdateMessage, loggerWithPrefix,
+    SystemInfoUpdateMessage, WindowFrameName,
+    WindowInfoRequestMessage, WindowInfoSetMessage, WindowInfoUpdateMessage, WindowIpcTopic
 } from '@portal-windows/core'
 
 export type WindowStore = {
@@ -25,6 +25,7 @@ const SHOW_DEV = true
 
 const logger = loggerWithPrefix('[windowStore]')
 
+
 class WindowActions {
   constructor(public set: SetState<WindowStore>, public get: GetState<WindowStore>) {}
 
@@ -33,7 +34,7 @@ class WindowActions {
     if (SHOW_DEV) window['windowStore'] = this
 
     this.rootFrameName = frameName
-    logger.info(`initializing ${frameName}`)
+    logger.info(`WINDOWSTORE —— initializing ${frameName}`)
     this.subscribeWindow(frameName, window)
 
 
@@ -116,6 +117,13 @@ class WindowActions {
       win.electronUnsubscribe(WindowIpcTopic.UPDATE_WINDOW_INFO)
     }
 
+    const requestInfo = () => {
+      const requestMsg: WindowInfoRequestMessage = {
+        frameName: frameName,
+      }
+      win.electronPublish(WindowIpcTopic.REQUEST_WINDOW_INFO, requestMsg)
+    }
+
     setTimeout(() => {
       if (!win || win.closed) {
         logger.error(`Window closed during subscribeWindow: ${frameName}`)
@@ -128,13 +136,12 @@ class WindowActions {
           const applyUpdate = this.updateWindowInfo(value.frameName, value)
           if (applyUpdate && DEBUG) logger.debug(`applied update to ${value.frameName}:`, value)
         })
+
+        win.addEventListener('resize', requestInfo) // we can't subscribe to resize using cmd+/- from desktop, so we do it here
       }
 
       if (DEBUG) logger.info(`request info from ${frameName}`)
-      const requestMsg: WindowInfoRequestMessage = {
-        frameName: frameName,
-      }
-      win.electronPublish(WindowIpcTopic.REQUEST_WINDOW_INFO, requestMsg)
+      requestInfo()
     }, 1000)
   }
 
@@ -189,22 +196,3 @@ export const [useWindowStore, windowApi] = create<WindowStore>((set, get) => ({
 }))
 
 export const windowActions = windowApi.getState().actions
-
-export function fitWindowInBounds(windowBounds: Rectangle, displayBounds: Rectangle) {
-  const newBounds: Partial<Rectangle> = {}
-  let update = false
-  for (let k of ['width', 'height']) {
-    if (windowBounds[k] > displayBounds[k]) {
-      newBounds[k] = displayBounds[k]
-      update = true
-    }
-  }
-  for (let k of ['x', 'y']) {
-    if (windowBounds[k] < displayBounds[k]) {
-      newBounds[k] = displayBounds[k]
-      update = true
-    }
-  }
-
-  return {update, newBounds}
-}

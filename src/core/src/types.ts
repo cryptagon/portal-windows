@@ -71,7 +71,7 @@ export type WindowInfoSetMessage = {
     aboveWindowMediaSource?: string,
     oldShowHack?: boolean,
   }
-  backgroundThrottling?: boolean,
+  backgroundThrottling?: { allowed: boolean, capturerProps?: { size?: WH, stayHidden?: boolean }},
   focusable?: boolean,
 
   // properties below this line available starting in version 1.6.511
