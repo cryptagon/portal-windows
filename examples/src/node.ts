@@ -1,6 +1,9 @@
 // Modified from electron's electron-quick-start-typescript:
 // https://github.com/electron/electron-quick-start-typescript/blob/master/src/main.ts
 
+import { WindowFrameName } from '@portal-windows/core'
+import * as a from '@portal-windows/renderer'
+import { GenericPortalWindow } from '@portal-windows/node'
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
 
@@ -19,6 +22,9 @@ function createWindow() {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  // This is where we store portal windows
+  const genericWindowHolder: { [key in WindowFrameName]?: GenericPortalWindow } = {}
 }
 
 // This method will be called when Electron has finished

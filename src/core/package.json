@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "description": "core",
   "main": "src/index.ts",
-  "types": "dist/src/index.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "tsc": "../../node_modules/.bin/tsc",
     "test": "jest"
+  },
+  "dependencies": {
+    "typescript": "^4.3.5"
+  },
+  "devDependencies": {
+    "@types/node": "^16.7.1"
   }
 }

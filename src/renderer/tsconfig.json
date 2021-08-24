@@ -3,12 +3,18 @@
   "compilerOptions": {
     "composite": true,
     "rootDir": ".",
+    "lib": ["DOM", "ES6"],
     "outDir": "dist",
     "baseUrl": ".",
+    "types": ["electron", "preload"],
+    "typeRoots": ["../core/@types", "../node_modules/@types"],
+    "paths": {
+      "@portal-windows/core": ["../core/src"],
+    },
   },
   "references": [
-    { "path": "../../tsconfig.json" },
+    { "path": "../core/tsconfig.json" },
   ],
-  "include": ["core"],
+  "include": ["src"],
   "exclude": ["dist"],
 }

@@ -209,29 +209,43 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@portal-windows/core@workspace:src/core":
+"@portal-windows/core@*, @portal-windows/core@workspace:src/core":
   version: 0.0.0-use.local
   resolution: "@portal-windows/core@workspace:src/core"
+  dependencies:
+    "@types/node": ^16.7.1
+    typescript: ^4.3.5
   languageName: unknown
   linkType: soft
 
 "@portal-windows/examples@workspace:examples":
   version: 0.0.0-use.local
   resolution: "@portal-windows/examples@workspace:examples"
+  dependencies:
+    "@portal-windows/core": "*"
+    "@portal-windows/node": "*"
+    "@portal-windows/renderer": "*"
+    "@types/electron": ^1.6.10
+    "@types/node": ^16.7.1
+    electron: ^13.2.2
+    path: ^0.12.7
+    typescript: ^4.3.5
   languageName: unknown
   linkType: soft
 
-"@portal-windows/node@workspace:src/node":
+"@portal-windows/node@*, @portal-windows/node@workspace:src/node":
   version: 0.0.0-use.local
   resolution: "@portal-windows/node@workspace:src/node"
   dependencies:
     "@sindresorhus/do-not-disturb": ^1.1.0
     "@types/electron": ^1.6.10
+    "@types/node": ^16.7.1
     electron: ^13.1.9
+    typescript: ^4.3.5
   languageName: unknown
   linkType: soft
 
-"@portal-windows/renderer@workspace:src/renderer":
+"@portal-windows/renderer@*, @portal-windows/renderer@workspace:src/renderer":
   version: 0.0.0-use.local
   resolution: "@portal-windows/renderer@workspace:src/renderer"
   dependencies:
@@ -241,6 +255,7 @@ __metadata:
     react: ^17.0.2
     react-dom: ^17.0.2
     styled-components: ^5.3.0
+    typescript: ^4.3.5
     zustand: 0.2.2
   languageName: unknown
   linkType: soft
@@ -336,6 +351,13 @@ __metadata:
   version: 14.17.9
   resolution: "@types/node@npm:14.17.9"
   checksum: e59b92e4346ed0db61e042d439f9658d1d3e8ad1d14825b714804cafae8ce22220ff6c8d907c4e4c6384aac748de07283fa321ef13cb8bdeb460eb789d634244
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^16.7.1":
+  version: 16.7.1
+  resolution: "@types/node@npm:16.7.1"
+  checksum: fcf1a2c7b1f19c2201574b2110176b49c6efd824a39b2ed8ac3e6688740e2a35bef95a3334dfa345f4bd4873fd8b79d8ac8cfcc9fcd3d2f4f8f993c2c37ce4ab
   languageName: node
   linkType: hard
 
@@ -756,6 +778,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"electron@npm:^13.2.2":
+  version: 13.2.2
+  resolution: "electron@npm:13.2.2"
+  dependencies:
+    "@electron/get": ^1.0.1
+    "@types/node": ^14.6.2
+    extract-zip: ^1.0.3
+  bin:
+    electron: cli.js
+  checksum: b6c6b71ed574f6c6a28cc3ac973d5791ef0af30b7a431cad00e949e5b2d97338dc9093d2aee883696c6e637b573b51ea390b3cce8e72897129119ca8b53f7fc1
+  languageName: node
+  linkType: hard
+
 "emoji-regex@npm:^7.0.1":
   version: 7.0.3
   resolution: "emoji-regex@npm:7.0.3"
@@ -1034,6 +1069,13 @@ __metadata:
   version: 2.0.4
   resolution: "inherits@npm:2.0.4"
   checksum: 4a48a733847879d6cf6691860a6b1e3f0f4754176e4d71494c41f3475553768b10f84b5ce1d40fbd0e34e6bfbb864ee35858ad4dd2cf31e02fc4a154b724d7f1
+  languageName: node
+  linkType: hard
+
+"inherits@npm:2.0.3":
+  version: 2.0.3
+  resolution: "inherits@npm:2.0.3"
+  checksum: 78cb8d7d850d20a5e9a7f3620db31483aa00ad5f722ce03a55b110e5a723539b3716a3b463e2b96ce3fe286f33afc7c131fa2f91407528ba80cea98a7545d4c0
   languageName: node
   linkType: hard
 
@@ -1418,6 +1460,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"path@npm:^0.12.7":
+  version: 0.12.7
+  resolution: "path@npm:0.12.7"
+  dependencies:
+    process: ^0.11.1
+    util: ^0.10.3
+  checksum: 5dedb71e78fc008fcba797defc0b4e1cf06c1f18e0a631e03ba5bb505136f587ff017afc14f9a3d481cbe77aeedff7dc0c1d2ce4d820c1ebf3c4281ca49423a1
+  languageName: node
+  linkType: hard
+
 "pend@npm:~1.2.0":
   version: 1.2.0
   resolution: "pend@npm:1.2.0"
@@ -1459,6 +1511,13 @@ __metadata:
   version: 2.0.1
   resolution: "process-nextick-args@npm:2.0.1"
   checksum: 1d38588e520dab7cea67cbbe2efdd86a10cc7a074c09657635e34f035277b59fbb57d09d8638346bf7090f8e8ebc070c96fa5fd183b777fff4f5edff5e9466cf
+  languageName: node
+  linkType: hard
+
+"process@npm:^0.11.1":
+  version: 0.11.10
+  resolution: "process@npm:0.11.10"
+  checksum: bfcce49814f7d172a6e6a14d5fa3ac92cc3d0c3b9feb1279774708a719e19acd673995226351a082a9ae99978254e320ccda4240ddc474ba31a76c79491ca7c3
   languageName: node
   linkType: hard
 
@@ -1878,6 +1937,15 @@ typescript@^4.3.5:
   version: 1.0.2
   resolution: "util-deprecate@npm:1.0.2"
   checksum: 474acf1146cb2701fe3b074892217553dfcf9a031280919ba1b8d651a068c9b15d863b7303cb15bd00a862b498e6cf4ad7b4a08fb134edd5a6f7641681cb54a2
+  languageName: node
+  linkType: hard
+
+"util@npm:^0.10.3":
+  version: 0.10.4
+  resolution: "util@npm:0.10.4"
+  dependencies:
+    inherits: 2.0.3
+  checksum: 913f9a90d05a60e91f91af01b8bd37e06bca4cc02d7b49e01089f9d5b78be2fffd61fb1a41b517de7238c5fc7337fa939c62d1fb4eb82e014894c7bee6637aaf
   languageName: node
   linkType: hard
 

@@ -1,12 +1,13 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "composite": false,
+    "lib": ["DOM"],
+    "composite": true,
     "rootDir": ".",
     "outDir": "dist",
     "baseUrl": ".",
-    "types": ["electron", "node", "preload"],
-    "typeRoots": ["../core/@types", "../node_modules/@types"],
+    "types": ["preload"],
+    "typeRoots": ["../core/@types"],
     "paths": {
       "@portal-windows/core": ["../core/src"],
     },

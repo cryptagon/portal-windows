@@ -5,7 +5,16 @@
   "main": "src/node.ts",
   "types": "dist/src/node.d.ts",
   "scripts": {
-    "tsc": "../node_modules/.bin/tsc",
     "test": "jest"
+  },
+  "dependencies": {
+    "@portal-windows/core": "*",
+    "@portal-windows/node": "*",
+    "@portal-windows/renderer": "*",
+    "@types/electron": "^1.6.10",
+    "@types/node": "^16.7.1",
+    "electron": "^13.2.2",
+    "path": "^0.12.7",
+    "typescript": "^4.3.5"
   }
 }

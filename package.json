@@ -5,7 +5,7 @@
   "repository": "https://github.com/cryptagon/portal-windows",
   "author": "Cyrus Roshan <cyrusroshan@users.noreply.github.com>",
   "scripts": {
-    "in_examples": "yarn workspace @portal-windows/examples",
+    "in_examples": "cd examples && yarn",
     "in_core": "yarn workspace @portal-windows/core",
     "in_node": "yarn workspace @portal-windows/node",
     "in_renderer": "yarn workspace @portal-windows/renderer",
@@ -23,5 +23,6 @@
     "typescript": "^4.3.5",
     "wsrun": "^5.2.4"
   },
-  "private": true
+  "private": true,
+  "packageManager": "yarn@3.0.1"
 }

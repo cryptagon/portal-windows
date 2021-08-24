@@ -1,16 +1,26 @@
-
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
+    "lib": ["DOM", "ES6"],
     "module": "commonjs",
     "noImplicitAny": true,
     "sourceMap": true,
+    "composite": true,
+    "rootDir": "src",
     "outDir": "dist",
     "baseUrl": ".",
+    "types": ["node"],
     "paths": {
-      "*": ["node_modules/*"]
+      "@portal-windows/core": ["../src/core/src"],
+      "@portal-windows/node": ["../src/node/src"],
+      "@portal-windows/renderer": ["../src/renderer/src"],
     }
   },
-  "include": [
-    "src/**/*"
-  ]
+  "references": [
+    { "path": "../src/core/tsconfig.json" },
+    { "path": "../src/node/tsconfig.json" },
+    { "path": "../src/renderer/tsconfig.json" },
+  ],
+  "include": ["src"],
+  "exclude": ["dist"]
 }

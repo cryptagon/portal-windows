@@ -4,7 +4,9 @@
     "composite": true,
     "rootDir": ".",
     "outDir": "dist",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "lib": ["DOM"],
+    "types": ["electron", "node"],
   },
   "exclude": ["dist"],
 }
