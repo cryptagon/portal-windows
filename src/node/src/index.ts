@@ -1,1 +1,1 @@
-export * from './genericPortalWindow/constructor'
+export * from './genericPortalWindow'

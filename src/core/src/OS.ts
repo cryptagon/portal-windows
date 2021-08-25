@@ -21,7 +21,7 @@ export const isWindows = getOS() == 'windows'
 export const isLinux = getOS() == 'linux'
 
 // detect operating system
-let os: OS = null
+var os: OS = null
 export function getOS(): OS {
   if (os) return os
 
