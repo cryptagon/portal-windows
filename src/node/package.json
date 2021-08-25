@@ -2,7 +2,7 @@
   "name": "@portal-windows/node",
   "version": "0.0.7",
   "description": "node",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest"
