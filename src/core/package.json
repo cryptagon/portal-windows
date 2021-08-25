@@ -1,6 +1,6 @@
 {
   "name": "@portal-windows/core",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "core",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
