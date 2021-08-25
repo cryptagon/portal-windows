@@ -13,6 +13,6 @@
   "devDependencies": {
     "@types/node": "^16.7.1"
   },
-  "gitHead": "585d78ca7c0e39cbe978eeb627120f9edab59115",
+  "gitHead": "b30585e6d193899d345a1ee65b5e42f189685ece",
   "private": false
 }
