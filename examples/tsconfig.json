@@ -1,21 +1,23 @@
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "lib": ["DOM", "ES6"],
+    "lib": ["DOM"],
     "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2015",
     "noImplicitAny": true,
     "sourceMap": true,
     "composite": true,
     "rootDir": "src",
     "outDir": "dist",
     "baseUrl": ".",
-    "types": ["node"],
+    "allowSyntheticDefaultImports": true,
+    "preserveSymlinks": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "jsx": "react",
   },
-  "references": [
-    { "path": "../src/core/tsconfig.json" },
-    { "path": "../src/node/tsconfig.json" },
-    { "path": "../src/renderer/tsconfig.json" },
-  ],
-  "include": ["src"],
-  "exclude": ["dist"]
+  "exclude": ["dist", "node_modules"]
 }

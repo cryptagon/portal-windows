@@ -1,0 +1,1 @@
+import * as preload from '@portal-windows/node/dist/genericPortalWindow/preload'
