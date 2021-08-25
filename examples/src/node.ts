@@ -41,7 +41,7 @@ function createWindow() {
     genericWindowHolder[frameName] = new GenericPortalWindow()
     event.newGuest = genericWindowHolder[frameName].init(options, frameName as WindowFrameName, undefined, {
       frame: true,
-      acceptFirstMouse: false,
+      acceptFirstMouse: true,
       resizable: true,
       hasShadow: true,
       transparent: false,

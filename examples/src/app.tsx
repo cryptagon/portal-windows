@@ -11,6 +11,10 @@ const App: React.FunctionComponent<Props> = (props: Props) => {
   useEffect(() => {
     windowActions.init(MAIN_FRAME_NAME as WindowFrameName)
     windowActions.setWindowInfo(MAIN_FRAME_NAME, { bounds: { width: 250, height: 350 }})
+
+    // optional, just for a fast demo load--but you will want to cache windows in prod,
+    // probably before the parent component even mounts
+    cacheWindows(5, MAIN_FRAME_NAME)
   }, [])
 
   return <DemoButtons frameName={MAIN_FRAME_NAME} nestLevel={0} />
@@ -21,7 +25,7 @@ const DemoButtons = (props: { frameName: WindowFrameName, text?: string, nestLev
   const { frameName, text, nestLevel } = props
   return <div style={{flex: 1, flexDirection: 'column', display: 'flex', justifyContent: 'space-around', alignItems: 'center'}}>
     <h1>Let's demo!</h1>
-    {text && <h2>{text}</h2>}
+    {text && <h3>{text}</h3>}
     <p>(window: {frameName})</p>
 
     <SimpleMirrorButton parentFrameName={frameName} nestLevel={nestLevel} />
@@ -30,28 +34,33 @@ const DemoButtons = (props: { frameName: WindowFrameName, text?: string, nestLev
   </div>
 }
 
+// cache windows
+function cacheWindows(level: number, frameName: WindowFrameName) {
+  if (level < 0) return
+  const simpleMirrorChild = `${frameName}::${SIMPLE_MIRROR_WINDOW}`
+  const rotatingMirrorChild = `${frameName}::${ROTATING_MIRROR_WINDOW}`
+  NewReactPortalWindow({ frameName: simpleMirrorChild, parentFrameName: MAIN_FRAME_NAME })
+  NewReactPortalWindow({ frameName: rotatingMirrorChild, parentFrameName: MAIN_FRAME_NAME })
+  cacheWindows(level - 1, simpleMirrorChild)
+  cacheWindows(level - 1, rotatingMirrorChild)
+}
+
 const SimpleMirrorButton = (props: { parentFrameName: WindowFrameName, nestLevel: number }) => {
   const { parentFrameName, nestLevel } = props
-  const frameName = `${SIMPLE_MIRROR_WINDOW}_${nestLevel}`
+  const frameName = `${parentFrameName}::${SIMPLE_MIRROR_WINDOW}`
   const [parentBounds] = useWindowStore(s => [s.windowInfo[parentFrameName]?.bounds])
   const [showMirror, setShowMirror] = useState(false)
   const mirror = useRef<ReturnType<typeof NewReactPortalWindow>>(null)
 
   const toggleMirrorState = () => {
     if (!mirror.current) {
-      mirror.current = NewReactPortalWindow({
-        frameName,
-        parentFrameName,
-        initialMessage: {
-          visibility: { show: true }
-        }
-      })
+      mirror.current = NewReactPortalWindow({ frameName, parentFrameName })
     }
     setShowMirror(!showMirror)
   }
 
   return <>
-    <button onClick={toggleMirrorState}>{showMirror ? 'Hide' : 'Show'} Mirror</button>
+    <button style={{height: 40, marginBottom: 8}} onClick={toggleMirrorState}>{showMirror ? 'Hide' : 'Show'} Mirror</button>
     {mirror.current && showMirror &&
       <mirror.current.component
         autoRepositionWindow autoResizeWindowToContents
@@ -87,7 +96,7 @@ const SimpleMirrorButton = (props: { parentFrameName: WindowFrameName, nestLevel
 
 const RotatingMirrorButton = (props: { parentFrameName: WindowFrameName, nestLevel: number }) => {
   const { parentFrameName, nestLevel } = props
-  const frameName = `${ROTATING_MIRROR_WINDOW}_${nestLevel}`
+  const frameName = `${parentFrameName}::${ROTATING_MIRROR_WINDOW}`
   const [parentBounds] = useWindowStore(s => [s.windowInfo[parentFrameName]?.bounds])
   const [showMirror, setShowMirror] = useState(false)
   const [degreesRotation, setDegreesRotation] = useState(0)
@@ -99,13 +108,7 @@ const RotatingMirrorButton = (props: { parentFrameName: WindowFrameName, nestLev
 
   const toggleMirrorState = () => {
     if (!mirror.current) {
-      mirror.current = NewReactPortalWindow({
-        frameName,
-        parentFrameName,
-        initialMessage: {
-          visibility: { show: true }
-        }
-      })
+      mirror.current = NewReactPortalWindow({ frameName, parentFrameName })
     }
     setShowMirror(!showMirror)
   }
@@ -114,7 +117,7 @@ const RotatingMirrorButton = (props: { parentFrameName: WindowFrameName, nestLev
     if (!showMirror) return
 
     const interval = setInterval(() => {
-      setDegreesRotation((degreesRef.current + 0.5) % 360)
+      setDegreesRotation((degreesRef.current + 0.25) % 360)
     }, 1)
 
     return () => {
@@ -123,14 +126,14 @@ const RotatingMirrorButton = (props: { parentFrameName: WindowFrameName, nestLev
   }, [showMirror])
 
   return <>
-    <button onClick={toggleMirrorState}>{showMirror ? 'Hide' : 'Show'} Rotating Mirror</button>
+    <button style={{height: 40, marginBottom: 8}} onClick={toggleMirrorState}>{showMirror ? 'Hide' : 'Show'} Rotating Mirror</button>
     {mirror.current && showMirror &&
       <mirror.current.component
         autoRepositionWindow autoResizeWindowToContents
         {...position(degreesRotation)}
       >
         <div style={{backgroundColor: 'white', width: parentBounds?.width, height: parentBounds?.height}} >
-          <DemoButtons text={`Rotation: ${degreesRotation} degrees`} frameName={frameName} nestLevel={nestLevel + 1} />
+          <DemoButtons text={`Deg: ${Math.floor(degreesRotation)}`} frameName={frameName} nestLevel={nestLevel + 1} />
         </div>
     </mirror.current.component>}
   </>
