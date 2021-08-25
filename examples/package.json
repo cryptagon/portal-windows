@@ -1,9 +1,10 @@
 {
-  "name": "@portal-windows/examples",
+  "name": "examples",
   "version": "0.0.2-alpha.0",
   "description": "examples",
   "main": "src/node.ts",
   "types": "dist/src/node.d.ts",
+  "private": true,
   "scripts": {
     "test": "jest",
     "start": "tsc --build && electron ./dist/node.js"
@@ -21,5 +22,6 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "typescript": "^4.3.5"
-  }
+  },
+  "gitHead": "cf21745aac7cc8466ac747e1264c052e7b382885"
 }
