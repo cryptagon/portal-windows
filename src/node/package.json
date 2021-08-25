@@ -1,6 +1,6 @@
 {
   "name": "@portal-windows/node",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "node",
   "main": "src/index.ts",
   "types": "dist/index.d.ts",
