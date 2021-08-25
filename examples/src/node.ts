@@ -12,13 +12,13 @@ function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 600,
+    width: 800,
     webPreferences: {
-      nativeWindowOpen: true,
-      nodeIntegration: true,
-      contextIsolation: false,
+      nativeWindowOpen: true, // so we can use `window.open` to create windows from the renderer
+      nodeIntegration: true, // so preload can allow renderer to send messages to node
+      contextIsolation: false, // so preload can allow renderer to send messages to node
       preload: path.join(__dirname, "preload.js"),
     },
-    width: 800,
   });
 
   // and load the index.html of the app.

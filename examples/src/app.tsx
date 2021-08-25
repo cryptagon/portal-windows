@@ -1,6 +1,5 @@
 import { WindowFrameName } from '@portal-windows/core'
-import { NewReactPortalWindow, useWindowStore, windowActions } from '@portal-windows/renderer'
-import { WindowPositionCalculationProps } from '@portal-windows/renderer/dist/component/types'
+import { NewReactPortalWindow, useWindowStore, windowActions, WindowPositionCalculationProps } from '@portal-windows/renderer'
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useRef } from 'react'
