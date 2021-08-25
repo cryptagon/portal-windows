@@ -136,11 +136,6 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
     existingHide = null
   }
 
-  setStyles(win, `html, body {
-    background: none !important;
-    ${options?.noScroll ? 'overflow: hidden !important;' : ''}
-  }`)
-
   const ReactPortalComponent = (props: PortalComponentProps) => {
     const inPlaceRef = useRef<HTMLDivElement>()
     const [
@@ -155,6 +150,13 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
     const parentWindow = useWindow()
     const ref = props.referenceElement || inPlaceRef
     const [firstDomUpdate, setFirstDomUpdate] = useState(0)
+
+    useLayoutEffect(() => {
+      setStyles(win, `html, body {
+        background: none !important;
+        ${options?.noScroll ? 'overflow: hidden !important;' : ''}
+      }`)
+    }, [])
 
     const firstShowDebounceId = 'react-portal-first-show' + frameName
     useEffect(() => {
