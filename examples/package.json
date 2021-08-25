@@ -1,13 +1,10 @@
 {
   "name": "examples",
-  "version": "0.0.2-alpha.0",
-  "description": "examples",
-  "main": "src/node.ts",
-  "types": "dist/src/node.d.ts",
-  "private": true,
+  "version": "1.0.0",
+  "main": "dist/node.js",
   "scripts": {
     "test": "jest",
-    "start": "tsc --build && electron ./dist/node.js"
+    "start": "tsc --build && webpack --config webpack.config.js && electron ./dist/node.js"
   },
   "dependencies": {
     "@portal-windows/core": "*",
@@ -23,5 +20,9 @@
     "react-dom": "^17.0.2",
     "typescript": "^4.3.5"
   },
-  "gitHead": "cf21745aac7cc8466ac747e1264c052e7b382885"
+  "devDependencies": {
+    "ts-loader": "^9.2.5",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0"
+  }
 }

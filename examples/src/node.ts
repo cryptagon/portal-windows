@@ -3,7 +3,7 @@
 
 import { WindowFrameName } from '@portal-windows/core'
 import { GenericPortalWindow } from '@portal-windows/node'
-import { attachDisplayChangeListener, attachMouseMoveListener, attachSystemInfoListener, attachWindowStoreListener } from '@portal-windows/node/src/genericPortalWindow/store-listeners';
+import { attachDisplayChangeListener, attachMouseMoveListener, attachSystemInfoListener, attachWindowStoreListener } from '@portal-windows/node';
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
 
@@ -12,13 +12,16 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     height: 600,
     webPreferences: {
+      nativeWindowOpen: true,
+      nodeIntegration: true,
+      contextIsolation: false,
       preload: path.join(__dirname, "preload.js"),
     },
     width: 800,
   });
 
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, "./index.html"));
+  mainWindow.loadFile(path.join(__dirname, "../index.html"));
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
