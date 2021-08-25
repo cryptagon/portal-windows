@@ -6,6 +6,7 @@ import {
     WindowInfoUpdateMessage, WindowIpcTopic
 } from '@portal-windows/core'
 
+// @ts-ignore
 import * as doNotDisturb from '@sindresorhus/do-not-disturb'
 import { allowOverlaying } from './overlaying'
 
@@ -13,7 +14,7 @@ const logger = loggerWithPrefix('[store-listeners]')
 
 const debug = process.env.LISTENER_DEBUG
 logger.info(`${debug ? 'Showing' : 'Not showing'} store listener logs. Use $LISTENER_DEBUG to change.`)
-const log = (debug ? logger.info : (any) => {})
+const log = (debug ? logger.info : (...p: any[]) => {})
 
 export const attachSystemInfoListener = (windowContainingStore: BrowserWindow) => {
   let dndEnabled: boolean = false
