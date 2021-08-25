@@ -1,6 +1,6 @@
 {
   "name": "@portal-windows/renderer",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "renderer",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
