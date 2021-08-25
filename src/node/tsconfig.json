@@ -3,7 +3,7 @@
   "compilerOptions": {
     "lib": ["DOM"],
     "composite": true,
-    "rootDir": ".",
+    "rootDir": "src",
     "outDir": "dist",
     "baseUrl": ".",
     "types": ["preload"],
@@ -16,5 +16,4 @@
     { "path": "../core/tsconfig.json" },
   ],
   "exclude": ["dist"],
-  "include": ["src"],
 }

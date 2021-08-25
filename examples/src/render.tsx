@@ -5,4 +5,8 @@
 // Use preload.js to selectively enable features
 // needed in the renderer process.
 
-console.log('HELLO!')
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+import App from './app'
+
+ReactDOM.render(<App />, document.getElementById('react-app'))

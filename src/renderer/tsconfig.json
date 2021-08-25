@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "composite": true,
-    "rootDir": ".",
+    "rootDir": "src",
     "lib": ["DOM", "ES6"],
     "outDir": "dist",
     "baseUrl": ".",
@@ -15,6 +15,5 @@
   "references": [
     { "path": "../core/tsconfig.json" },
   ],
-  "include": ["src"],
   "exclude": ["dist"],
 }

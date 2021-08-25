@@ -2,8 +2,8 @@
 // https://github.com/electron/electron-quick-start-typescript/blob/master/src/main.ts
 
 import { WindowFrameName } from '@portal-windows/core'
-import * as a from '@portal-windows/renderer'
 import { GenericPortalWindow } from '@portal-windows/node'
+import { attachDisplayChangeListener, attachMouseMoveListener, attachSystemInfoListener, attachWindowStoreListener } from '@portal-windows/node/src/genericPortalWindow/store-listeners';
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
 
@@ -23,8 +23,20 @@ function createWindow() {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
+  // Attach listeners for window movement, display change, mouse movement, and system info
+  attachWindowStoreListener(mainWindow, WindowFrameName.MAIN_WINDOW, mainWindow)
+  attachDisplayChangeListener(mainWindow)
+  attachMouseMoveListener(mainWindow)
+  attachSystemInfoListener(mainWindow)
+
   // This is where we store portal windows
   const genericWindowHolder: { [key in WindowFrameName]?: GenericPortalWindow } = {}
+  mainWindow.webContents.on('new-window', (event, url, untypedFrameName, disposition, options, additionalFeatures) => {
+    const frameName = untypedFrameName as WindowFrameName
+    event.preventDefault()
+    genericWindowHolder[frameName] = new GenericPortalWindow()
+    event.newGuest = genericWindowHolder[frameName].init(options, frameName as WindowFrameName)
+  })
 }
 
 // This method will be called when Electron has finished

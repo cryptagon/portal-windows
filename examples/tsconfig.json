@@ -10,11 +10,6 @@
     "outDir": "dist",
     "baseUrl": ".",
     "types": ["node"],
-    "paths": {
-      "@portal-windows/core": ["../src/core/src"],
-      "@portal-windows/node": ["../src/node/src"],
-      "@portal-windows/renderer": ["../src/renderer/src"],
-    }
   },
   "references": [
     { "path": "../src/core/tsconfig.json" },
