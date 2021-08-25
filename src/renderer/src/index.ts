@@ -1,2 +1,2 @@
-export * from './component/constructor'
+export * from './component'
 export * from './stores/windowStore'
