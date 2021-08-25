@@ -13,6 +13,7 @@ export class GenericPortalWindow {
     eventOptions: BrowserWindowConstructorOptions,
     frameName: WindowFrameName,
     overlayingProps?: OverlayingProps,
+    overrideOptions?: BrowserWindowConstructorOptions,
   ) => {
     if (this.window) {
       this.window.destroy()
@@ -51,6 +52,8 @@ export class GenericPortalWindow {
         preload: path.join(__dirname, `preload.js`),
         nodeIntegration: false
       },
+
+      ...(overrideOptions || {})
     }
 
     let win = new BrowserWindow(options)
