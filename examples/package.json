@@ -1,6 +1,6 @@
 {
   "name": "@portal-windows/examples",
-  "version": "1.0.0",
+  "version": "0.0.2-alpha.0",
   "description": "examples",
   "main": "src/node.ts",
   "types": "dist/src/node.d.ts",
@@ -9,9 +9,9 @@
     "start": "tsc --build && electron ./dist/node.js"
   },
   "dependencies": {
-    "@portal-windows/core": "*",
-    "@portal-windows/node": "*",
-    "@portal-windows/renderer": "*",
+    "@portal-windows/core": "^0.0.2-alpha.0",
+    "@portal-windows/node": "^0.0.2-alpha.0",
+    "@portal-windows/renderer": "^0.0.2-alpha.0",
     "@types/electron": "^1.6.10",
     "@types/node": "^16.7.1",
     "@types/react": "^17.0.19",
