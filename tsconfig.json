@@ -3,6 +3,7 @@
     "target": "esnext",
     "module": "commonjs",
     "moduleResolution": "node",
+    "declaration": true,
     "outDir": "dist",
     "allowSyntheticDefaultImports": true,
     "preserveSymlinks": true,
@@ -14,7 +15,7 @@
     "esModuleInterop": true,
     "jsx": "react",
     "lib": ["es2017"],
-    "typeRoots": ["src/core/@types", "node_modules/@types"]
+    "typeRoots": ["src/core/@types", "node_modules/@types"],
   },
   "exclude": ["node_modules"]
 }
