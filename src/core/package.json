@@ -1,6 +1,6 @@
 {
   "name": "@portal-windows/core",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "core",
   "main": "src/index.ts",
   "types": "dist/index.d.ts",
