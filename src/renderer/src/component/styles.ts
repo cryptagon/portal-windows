@@ -9,8 +9,8 @@ export function copyStyles (sourceDoc: Document, targetDoc: Document) {
       const newSS = document.createElement('style')
       targetDoc.head.appendChild(newSS) // creates newSS's .sheet property
 
-      Array.from(originalSS.cssRules).forEach(rule => {
-        newSS.sheet.insertRule(rule.cssText, originalSS.cssRules.length)
+      Array.from(originalSS.cssRules).reverse().forEach(rule => {
+        newSS.sheet.insertRule(rule.cssText)
       })
     })
   } catch (e) {
