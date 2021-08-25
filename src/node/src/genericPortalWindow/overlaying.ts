@@ -4,7 +4,7 @@ import { debounce, DebounceStyle, OverlayingProps, WindowIpcTopic } from '@porta
 
 export const DOCK_DEBOUNCE = 'dock-show'
 const DISABLE_OVERLAYING = process.env.DISABLE_OVERLAYING
-const shouldShowDock = (): boolean => (global['show_dock'] ?? true)
+const shouldShowDock = (): boolean => ((global as any)['show_dock'] ?? true)
 
 let windowsToMessage: BrowserWindow[] = []
 
