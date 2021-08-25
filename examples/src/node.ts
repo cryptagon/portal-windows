@@ -6,6 +6,7 @@ import { GenericPortalWindow } from '@portal-windows/node'
 import { attachDisplayChangeListener, attachMouseMoveListener, attachSystemInfoListener, attachWindowStoreListener } from '@portal-windows/node';
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
+import { MAIN_FRAME_NAME } from './consts';
 
 function createWindow() {
   // Create the browser window.
@@ -27,7 +28,7 @@ function createWindow() {
   mainWindow.webContents.openDevTools();
 
   // Attach listeners for window movement, display change, mouse movement, and system info
-  attachWindowStoreListener(mainWindow, WindowFrameName.MAIN_WINDOW, mainWindow)
+  attachWindowStoreListener(mainWindow, MAIN_FRAME_NAME, mainWindow)
   attachDisplayChangeListener(mainWindow)
   attachMouseMoveListener(mainWindow)
   attachSystemInfoListener(mainWindow)
@@ -38,7 +39,15 @@ function createWindow() {
     const frameName = untypedFrameName as WindowFrameName
     event.preventDefault()
     genericWindowHolder[frameName] = new GenericPortalWindow()
-    event.newGuest = genericWindowHolder[frameName].init(options, frameName as WindowFrameName)
+    event.newGuest = genericWindowHolder[frameName].init(options, frameName as WindowFrameName, undefined, {
+      frame: true,
+      acceptFirstMouse: false,
+      resizable: true,
+      hasShadow: true,
+      transparent: false,
+      titleBarStyle: 'default',
+      trafficLightPosition: { x: 100, y: 0 },
+    })
   })
 }
 

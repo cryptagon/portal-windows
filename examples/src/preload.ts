@@ -1,1 +1,3 @@
-import * as preload from '@portal-windows/node/dist/genericPortalWindow/preload'
+import { preload } from '@portal-windows/node'
+
+preload()
