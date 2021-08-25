@@ -17,5 +17,6 @@
     "typescript": "^4.3.5",
     "zustand": "0.2.2"
   },
-  "gitHead": "56484aab095efbc654f7a98e353cc14c38a2f2eb"
+  "gitHead": "585d78ca7c0e39cbe978eeb627120f9edab59115",
+  "private": false
 }
