@@ -9,7 +9,8 @@
     "in_core": "yarn workspace @portal-windows/core",
     "in_node": "yarn workspace @portal-windows/node",
     "in_renderer": "yarn workspace @portal-windows/renderer",
-    "tsc": "yarn wsrun --collect-logs --report --stages --recursive tsc --build"
+    "tsc": "yarn wsrun --collect-logs --report --stages --recursive tsc --build",
+    "release": "yarn tsc && yarn lerna publish"
   },
   "workspaces": {
     "packages": [
