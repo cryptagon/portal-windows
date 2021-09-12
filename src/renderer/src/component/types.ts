@@ -1,17 +1,21 @@
 import { Display, WH, Rectangle, WindowInfoUpdateMessage } from "@portal-windows/core"
 
-export enum Unit {
-  DisplaySize = 'displaySizeMultiple',
-  ReferenceElementSize = 'refElemSizeMultiple',
-  ParentWindowSize = 'parentWindowSizeMultiple',
-  PortalWindowSize = 'portalWindowSizeMultiple',
-  Pixels = 'pixels',
+export interface WindowPositionCalculationProps {
+  position: {
+    vertical: WindowPosition,
+    horizontal: WindowPosition,
+  },
+  offsets: {
+    horizontal: WindowOffset[],
+    vertical: WindowOffset[],
+  }
+  correctBoundsRelativeTo?: Rectangle,
+  boundsCorrectionStrategies: BoundsCorrectionStrategy[],
 }
 
-export type WindowOffset = {
-  unit: Unit,
-  relativeToCustomDisplay?: Display
-  value: number
+export type WindowPosition = {
+  startIndexAt: RelativePosition
+  useCustomDisplay?: Display
 }
 
 export enum RelativePosition {
@@ -20,14 +24,18 @@ export enum RelativePosition {
   ReferenceElement = 'refElemPosition',
 }
 
-export type WindowPosition = {
-  startIndexAt: RelativePosition
-  useCustomDisplay?: Display
+export type WindowOffset = {
+  unit: Unit,
+  relativeToCustomDisplay?: Display
+  value: number
 }
 
-export enum BoundsCorrectionStrategyType {
-  SubtractExcess = 'subtractExcess',
-  ReplaceParameters = 'replaceOffsetsOrPosition'
+export enum Unit {
+  DisplaySize = 'displaySizeMultiple',
+  ReferenceElementSize = 'refElemSizeMultiple',
+  ParentWindowSize = 'parentWindowSizeMultiple',
+  PortalWindowSize = 'portalWindowSizeMultiple',
+  Pixels = 'pixels',
 }
 
 export type BoundsCorrectionStrategy = {
@@ -45,23 +53,8 @@ export type BoundsCorrectionStrategy = {
 
   nestedStrategies?: BoundsCorrectionStrategy[]
 }
-export interface WindowPositionCalculationProps {
-  position: {
-    vertical: WindowPosition,
-    horizontal: WindowPosition,
-  },
-  offsets: {
-    horizontal: WindowOffset[],
-    vertical: WindowOffset[],
-  }
-  correctBoundsRelativeTo?: Rectangle,
-  boundsCorrectionStrategies: BoundsCorrectionStrategy[],
-}
 
-export interface windowPositionCalculationState {
-  wb: WH,
-  parentWindowInfo: WindowInfoUpdateMessage
-  windowInfo: WindowInfoUpdateMessage
-  parentDisplay: Display
-  refElem: Element
+export enum BoundsCorrectionStrategyType {
+  SubtractExcess = 'subtractExcess',
+  ReplaceParameters = 'replaceOffsetsOrPosition'
 }

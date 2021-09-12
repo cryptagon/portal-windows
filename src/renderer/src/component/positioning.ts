@@ -1,121 +1,30 @@
-import {WH, XY} from '@portal-windows/core'
 import { BoundsCorrectionStrategyType, RelativePosition } from './types'
 import { Unit } from './types'
+import { Display, WH, XY, WindowInfoUpdateMessage } from "@portal-windows/core"
+import {WindowOffset, WindowPosition, WindowPositionCalculationProps} from './types'
 
-import {WindowOffset, WindowPosition, WindowPositionCalculationProps, windowPositionCalculationState} from './types'
+export interface windowPositionCalculationState {
+  wb: WH,
+  parentWindowInfo: WindowInfoUpdateMessage
+  windowInfo: WindowInfoUpdateMessage
+  parentDisplay: Display
+  refElem: Element
+}
 
 export function recalculateWindowPosition(props: WindowPositionCalculationProps, state: windowPositionCalculationState): XY {
-  // allows for the 'replaceOffsetsOrPosition' BoundsCorrectionStrategy
-  let mutableOffsetProp = props.offsets
-
-  const calculateOffset = (offset: WindowOffset) => {
-    let relativeUnitObject: WH // object we're referencing to get the raw pixel value offset from
-    if (offset.unit === Unit.DisplaySize) {
-      if (offset.relativeToCustomDisplay) {
-        relativeUnitObject = offset.relativeToCustomDisplay.bounds
-      } else {
-        relativeUnitObject = state.parentDisplay.bounds
-      }
-    } else if (offset.unit === Unit.ReferenceElementSize) {
-      if (!state.refElem) {
-        throw('offset is relative to a reference element, but we have no reference')
-      }
-      const refElemBounds = state.refElem.getBoundingClientRect()
-
-      const zoom = state.parentWindowInfo.zoomFactor
-      if (zoom && zoom !== 1) {
-        refElemBounds.height *= zoom
-        refElemBounds.width *= zoom
-        refElemBounds.x *= zoom
-        refElemBounds.y *= zoom
-      }
-
-      relativeUnitObject = refElemBounds
-    } else if (offset.unit === Unit.ParentWindowSize) {
-      relativeUnitObject = Object.assign({}, state.parentWindowInfo.bounds)
-    } else if (offset.unit === Unit.PortalWindowSize) {
-      relativeUnitObject = Object.assign({}, state.wb)
-    } else if (offset.unit === Unit.Pixels) {
-      relativeUnitObject = {
-        height: 1,
-        width: 1,
-      }
-    }
-
-    return {
-      x: Math.floor(relativeUnitObject.width * offset.value),
-      y: Math.floor(relativeUnitObject.height * offset.value),
-    }
-  }
-
-  const calculatePosition = (position: WindowPosition) => {
-    let referenceBounds: {x: number, y: number}
-    if (position.startIndexAt === RelativePosition.Display) {
-      if (position.useCustomDisplay) {
-        referenceBounds = position.useCustomDisplay.bounds
-      } else {
-        referenceBounds = state.parentDisplay.bounds
-      }
-    } else if (position.startIndexAt === RelativePosition.ParentWindow) {
-      referenceBounds = state.parentWindowInfo.bounds
-    } else if (position.startIndexAt === RelativePosition.ReferenceElement) {
-      if (!state.refElem) {
-        throw('offset is relative to parent element, but we have no reference to the parent element')
-      }
-
-      const refElemBounds = state.refElem.getBoundingClientRect()
-      const zoom = state.parentWindowInfo.zoomFactor
-      if (zoom && zoom !== 1) {
-        refElemBounds.height *= zoom
-        refElemBounds.width *= zoom
-        refElemBounds.x *= zoom
-        refElemBounds.y *= zoom
-      }
-
-      referenceBounds = {
-        x: state.parentWindowInfo.bounds.x + refElemBounds.x,
-        y: state.parentWindowInfo.bounds.y + refElemBounds.y,
-      }
-    }
-
-    return referenceBounds
-  }
-
-  const checkBounds = (position: XY) => {
-    const outerBounds = props.correctBoundsRelativeTo || state.parentDisplay.bounds
-    const boundsExceededDiff = {
-      farX: (position.x + state.wb.width) - (outerBounds.x + outerBounds.width),
-      nearX: outerBounds.x - position.x,
-
-      farY: (position.y + state.wb.height) - (outerBounds.y + outerBounds.height),
-      nearY: outerBounds.y - position.y,
-    }
-
-    const outOfBounds = (
-      (boundsExceededDiff.farX > 0) ||
-      (boundsExceededDiff.nearX > 0) ||
-      (boundsExceededDiff.farY > 0) ||
-      (boundsExceededDiff.nearY > 0)
-    )
-
-    return {
-      outOfBounds,
-      boundsExceededDiff,
-    }
-  }
-
   let positionWithoutOffset: XY = {
-    x: calculatePosition(props.position.horizontal).x,
-    y: calculatePosition(props.position.vertical).y,
+    x: calculatePosition(props.position.horizontal, state).x,
+    y: calculatePosition(props.position.vertical, state).y,
   }
 
+  let mutableOffsetProp = props.offsets
   const initialOffset: XY = {
     x: mutableOffsetProp.horizontal.reduce((prev, curr) => {
-      prev.x += calculateOffset(curr).x
+      prev.x += calculateOffset(curr, state).x
       return prev
     }, {x: 0, y: 0}).x,
     y: mutableOffsetProp.vertical.reduce((prev, curr) => {
-      prev.y += calculateOffset(curr).y
+      prev.y += calculateOffset(curr, state).y
       return prev
     }, {x: 0, y: 0}).y
   }
@@ -124,7 +33,7 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
     x: positionWithoutOffset.x + initialOffset.x,
     y: positionWithoutOffset.y + initialOffset.y,
   }
-  let { outOfBounds, boundsExceededDiff } = checkBounds(resultingPosition)
+  let { outOfBounds, boundsExceededDiff } = checkBounds(resultingPosition, state, props)
 
   for (let i = 0; (i < props.boundsCorrectionStrategies.length && outOfBounds); i++) {
     const boundsCorrectionStrategy = props.boundsCorrectionStrategies[i]
@@ -158,19 +67,19 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
       let offset = initialOffset
       if (boundsCorrectionStrategy.replacePositionWith) {
         position = {
-          x: calculatePosition(props.position.horizontal).x,
-          y: calculatePosition(props.position.vertical).y,
+          x: calculatePosition(props.position.horizontal, state).x,
+          y: calculatePosition(props.position.vertical, state).y,
         }
       }
       if (boundsCorrectionStrategy.replaceOffsetsWith) {
         mutableOffsetProp = {...mutableOffsetProp, ...boundsCorrectionStrategy.replaceOffsetsWith}
         offset = {
           x: mutableOffsetProp.horizontal.reduce((prev, curr) => {
-            prev.x += calculateOffset(curr).x
+            prev.x += calculateOffset(curr, state).x
             return prev
           }, {x: 0, y: 0}).x,
           y: mutableOffsetProp.vertical.reduce((prev, curr) => {
-            prev.y += calculateOffset(curr).y
+            prev.y += calculateOffset(curr, state).y
             return prev
           }, {x: 0, y: 0}).y
         }
@@ -188,10 +97,106 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
     }
 
     // Get ready for next iteration
-    const check = checkBounds(resultingPosition)
+    const check = checkBounds(resultingPosition, state, props)
     outOfBounds = check.outOfBounds
     boundsExceededDiff = check.boundsExceededDiff
   }
 
   return resultingPosition
+}
+
+function calculateOffset(offset: WindowOffset, state: windowPositionCalculationState) {
+  let relativeUnitObject: WH // object we're referencing to get the raw pixel value offset from
+  if (offset.unit === Unit.DisplaySize) {
+    if (offset.relativeToCustomDisplay) {
+      relativeUnitObject = offset.relativeToCustomDisplay.bounds
+    } else {
+      relativeUnitObject = state.parentDisplay.bounds
+    }
+  } else if (offset.unit === Unit.ReferenceElementSize) {
+    if (!state.refElem) {
+      throw('offset is relative to a reference element, but we have no reference')
+    }
+    const refElemBounds = state.refElem.getBoundingClientRect()
+
+    const zoom = state.parentWindowInfo.zoomFactor
+    if (zoom && zoom !== 1) {
+      refElemBounds.height *= zoom
+      refElemBounds.width *= zoom
+      refElemBounds.x *= zoom
+      refElemBounds.y *= zoom
+    }
+
+    relativeUnitObject = refElemBounds
+  } else if (offset.unit === Unit.ParentWindowSize) {
+    relativeUnitObject = Object.assign({}, state.parentWindowInfo.bounds)
+  } else if (offset.unit === Unit.PortalWindowSize) {
+    relativeUnitObject = Object.assign({}, state.wb)
+  } else if (offset.unit === Unit.Pixels) {
+    relativeUnitObject = {
+      height: 1,
+      width: 1,
+    }
+  }
+
+  return {
+    x: Math.floor(relativeUnitObject.width * offset.value),
+    y: Math.floor(relativeUnitObject.height * offset.value),
+  }
+}
+
+function calculatePosition(position: WindowPosition, state: windowPositionCalculationState) {
+  let referenceBounds: {x: number, y: number}
+  if (position.startIndexAt === RelativePosition.Display) {
+    if (position.useCustomDisplay) {
+      referenceBounds = position.useCustomDisplay.bounds
+    } else {
+      referenceBounds = state.parentDisplay.bounds
+    }
+  } else if (position.startIndexAt === RelativePosition.ParentWindow) {
+    referenceBounds = state.parentWindowInfo.bounds
+  } else if (position.startIndexAt === RelativePosition.ReferenceElement) {
+    if (!state.refElem) {
+      throw('offset is relative to parent element, but we have no reference to the parent element')
+    }
+
+    const refElemBounds = state.refElem.getBoundingClientRect()
+    const zoom = state.parentWindowInfo.zoomFactor
+    if (zoom && zoom !== 1) {
+      refElemBounds.height *= zoom
+      refElemBounds.width *= zoom
+      refElemBounds.x *= zoom
+      refElemBounds.y *= zoom
+    }
+
+    referenceBounds = {
+      x: state.parentWindowInfo.bounds.x + refElemBounds.x,
+      y: state.parentWindowInfo.bounds.y + refElemBounds.y,
+    }
+  }
+
+  return referenceBounds
+}
+
+function checkBounds(position: XY, state: windowPositionCalculationState, props: WindowPositionCalculationProps) {
+  const outerBounds = props.correctBoundsRelativeTo || state.parentDisplay.bounds
+  const boundsExceededDiff = {
+    farX: (position.x + state.wb.width) - (outerBounds.x + outerBounds.width),
+    nearX: outerBounds.x - position.x,
+
+    farY: (position.y + state.wb.height) - (outerBounds.y + outerBounds.height),
+    nearY: outerBounds.y - position.y,
+  }
+
+  const outOfBounds = (
+    (boundsExceededDiff.farX > 0) ||
+    (boundsExceededDiff.nearX > 0) ||
+    (boundsExceededDiff.farY > 0) ||
+    (boundsExceededDiff.nearY > 0)
+  )
+
+  return {
+    outOfBounds,
+    boundsExceededDiff,
+  }
 }
