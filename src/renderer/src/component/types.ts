@@ -1,18 +1,37 @@
 import { Display, WH, Rectangle, WindowInfoUpdateMessage } from "@portal-windows/core"
 
+export enum Unit {
+  DisplaySize = 'displaySizeMultiple',
+  ReferenceElementSize = 'refElemSizeMultiple',
+  ParentWindowSize = 'parentWindowSizeMultiple',
+  PortalWindowSize = 'portalWindowSizeMultiple',
+  Pixels = 'pixels',
+}
+
 export type WindowOffset = {
-  units: 'displaySizeMultiple' | 'refElemSizeMultiple' | 'parentWindowSizeMultiple' | 'portalWindowSizeMultiple' | 'px'
+  unit: Unit,
   relativeToCustomDisplay?: Display
   value: number
 }
 
+export enum RelativePosition {
+  Display = 'displayPosition',
+  ParentWindow = 'parentWindowPosition',
+  ReferenceElement = 'refElemPosition',
+}
+
 export type WindowPosition = {
-  relativeTo: 'displayPosition' | 'parentWindowPosition' | 'refElemPosition'
-  relativeToCustomDisplay?: Display
+  startIndexAt: RelativePosition
+  useCustomDisplay?: Display
+}
+
+export enum BoundsCorrectionStrategyType {
+  SubtractExcess = 'subtractExcess',
+  ReplaceParameters = 'replaceOffsetsOrPosition'
 }
 
 export type BoundsCorrectionStrategy = {
-  strategyType: 'subtractExcess' | 'replaceOffsetsOrPosition'
+  strategyType: BoundsCorrectionStrategyType,
 
   applyToOnly?: 'horizontalBounds' | 'verticalBounds'
   applyOnlyIf?: (props: {

@@ -5,7 +5,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "baseUrl": ".",
-    "lib": ["DOM"],
+    "lib": ["DOM", "es2015"],
     "types": ["electron", "node"],
   },
   "exclude": ["dist"],

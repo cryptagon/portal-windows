@@ -1,4 +1,6 @@
 import {WH, XY} from '@portal-windows/core'
+import { BoundsCorrectionStrategyType, RelativePosition } from './types'
+import { Unit } from './types'
 
 import {WindowOffset, WindowPosition, WindowPositionCalculationProps, windowPositionCalculationState} from './types'
 
@@ -8,13 +10,13 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
 
   const calculateOffset = (offset: WindowOffset) => {
     let relativeUnitObject: WH // object we're referencing to get the raw pixel value offset from
-    if (offset.units === 'displaySizeMultiple') {
+    if (offset.unit === Unit.DisplaySize) {
       if (offset.relativeToCustomDisplay) {
         relativeUnitObject = offset.relativeToCustomDisplay.bounds
       } else {
         relativeUnitObject = state.parentDisplay.bounds
       }
-    } else if (offset.units === 'refElemSizeMultiple') {
+    } else if (offset.unit === Unit.ReferenceElementSize) {
       if (!state.refElem) {
         throw('offset is relative to a reference element, but we have no reference')
       }
@@ -29,11 +31,11 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
       }
 
       relativeUnitObject = refElemBounds
-    } else if (offset.units === 'parentWindowSizeMultiple') {
+    } else if (offset.unit === Unit.ParentWindowSize) {
       relativeUnitObject = Object.assign({}, state.parentWindowInfo.bounds)
-    } else if (offset.units === 'portalWindowSizeMultiple') {
+    } else if (offset.unit === Unit.PortalWindowSize) {
       relativeUnitObject = Object.assign({}, state.wb)
-    } else if (offset.units === 'px') {
+    } else if (offset.unit === Unit.Pixels) {
       relativeUnitObject = {
         height: 1,
         width: 1,
@@ -48,15 +50,15 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
 
   const calculatePosition = (position: WindowPosition) => {
     let referenceBounds: {x: number, y: number}
-    if (position.relativeTo === 'displayPosition') {
-      if (position.relativeToCustomDisplay) {
-        referenceBounds = position.relativeToCustomDisplay.bounds
+    if (position.startIndexAt === RelativePosition.Display) {
+      if (position.useCustomDisplay) {
+        referenceBounds = position.useCustomDisplay.bounds
       } else {
         referenceBounds = state.parentDisplay.bounds
       }
-    } else if (position.relativeTo === 'parentWindowPosition') {
+    } else if (position.startIndexAt === RelativePosition.ParentWindow) {
       referenceBounds = state.parentWindowInfo.bounds
-    } else if (position.relativeTo === 'refElemPosition') {
+    } else if (position.startIndexAt === RelativePosition.ReferenceElement) {
       if (!state.refElem) {
         throw('offset is relative to parent element, but we have no reference to the parent element')
       }
@@ -138,7 +140,7 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
       }
     }
 
-    if (boundsCorrectionStrategy.strategyType === "subtractExcess") {
+    if (boundsCorrectionStrategy.strategyType === BoundsCorrectionStrategyType.SubtractExcess) {
       if (boundsExceededDiff.farX > 0) {
         resultingPosition.x -= boundsExceededDiff.farX
       }
@@ -151,7 +153,7 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
       if (boundsExceededDiff.nearY > 0) {
         resultingPosition.y += boundsExceededDiff.nearY
       }
-    } else if (boundsCorrectionStrategy.strategyType === 'replaceOffsetsOrPosition') {
+    } else if (boundsCorrectionStrategy.strategyType === BoundsCorrectionStrategyType.ReplaceParameters) {
       let position = positionWithoutOffset
       let offset = initialOffset
       if (boundsCorrectionStrategy.replacePositionWith) {
