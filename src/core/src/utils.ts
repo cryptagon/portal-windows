@@ -2,7 +2,13 @@ export const deepCompareIntersection = (obj1: any, obj2: any) =>
   obj1 === obj2 || typeof obj1 === typeof obj2 && typeof obj1 === "object" &&
     Object.keys(obj1).every(key => !obj2.hasOwnProperty(key) || deepCompareIntersection(obj1[key], obj2[key]))
 
-export function loggerWithPrefix (prefix: string) {
+export interface GenericLogger {
+  info(...any): void
+  error(...any): void
+  debug(...any): void
+}
+
+export function loggerWithPrefix (prefix: string): GenericLogger {
   return {
     info: (...args: any) => console.log(prefix, ...args),
     error: (...args: any) => console.error(prefix, ...args),

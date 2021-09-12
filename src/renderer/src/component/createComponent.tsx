@@ -3,8 +3,8 @@ import * as ReactDOM from 'react-dom';
 import { StyleSheetManager } from 'styled-components';
 
 import {
-    clearDebounce, debounce, DebounceStyle, isMac, loggerWithPrefix, Rectangle, WindowFrameName,
-    WindowInfoSetMessage, WindowIpcTopic
+  clearDebounce, debounce, DebounceStyle, GenericLogger, isMac, loggerWithPrefix, Rectangle, WindowFrameName,
+  WindowInfoSetMessage, WindowIpcTopic
 } from '@portal-windows/core';
 
 import { useWindowStore, windowApi } from '../stores/windowStore';
@@ -13,19 +13,8 @@ import { setStyles } from './styles';
 import { WindowPositionCalculationProps } from './types';
 import { useWindow, WindowContext } from './useWindow';
 import { useUpdatedRef } from './utils';
+import { PortalConstructorProps, PortalResult } from 'src';
 
-type updateType = {
-  dom?: boolean,
-  parentWindow?: boolean,
-  manualReferenceChanged?: boolean,
-}
-
-export type ReactPortalOptions = {
-  noScroll?: boolean,
-  resizeInsteadOfHide?: boolean,
-}
-
-const unsubscribers: { [frameName in WindowFrameName]?: () => void } = {}
 
 export type PortalComponentProps = {
   referenceElement?: React.RefObject<Element>
@@ -47,78 +36,16 @@ export type PortalComponentProps = {
   forceHide?: () => void
 } & WindowPositionCalculationProps
 
-export type PortalResult = {
-  component: React.FunctionComponent<PortalComponentProps>,
-  win: Window,
+type updateType = {
+  dom?: boolean,
+  parentWindow?: boolean,
+  manualReferenceChanged?: boolean,
 }
 
-export type PortalConstructorProps = {
-  frameName: WindowFrameName,
-  parentFrameName: WindowFrameName,
-  initialMessage?: Partial<WindowInfoSetMessage>,
-  options?: ReactPortalOptions
-  windowOptionsString?: string
-}
+const unsubscribers: { [frameName in WindowFrameName]?: () => void } = {}
 
-export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResult => {
+export const createPortalWindowComponent = (props: PortalConstructorProps, win: Window, log: GenericLogger, logIfDebug: GenericLogger): React.FunctionComponent => {
   const { frameName, parentFrameName, initialMessage, options, windowOptionsString } = props
-
-  const log = loggerWithPrefix(`[reactPortalWindow] [${frameName}] (init)`)
-  const logIfDebug = (...args: any[]) => {
-    if (window['portalDebug']) {
-      log.info(...args)
-    }
-  }
-
-  let win: Window = windowApi.getState().windows[frameName]
-  let canAccessWindow = false
-  try {
-    // Note: We can also use Object.getOwnPropertyNames(win.location).includes('hash')
-    // which doesn't require a try/catch, but this is clearer
-    if (win.location.href) {
-      canAccessWindow = true
-    }
-  } catch (e) {}
-
-  const createWindow = !win || !canAccessWindow
-  if (createWindow) {
-    const w = window.open('', frameName, windowOptionsString || '')
-    if (isMac) {
-      // Lets us tell windows apart by framename in dev
-      w.location.href = `about:blank?title=${encodeURIComponent(frameName)}`
-    }
-    if (!w) {
-      throw('undefined window')
-    }
-
-    win = w
-    windowApi.getState().windows[frameName] = win
-  }
-
-  if (win.closed) {
-    log.error(`Portal window ${frameName} is already closed`)
-    return null
-  }
-  if (!win.electronPublish || !win.electronSubscribe) {
-    log.error(`Portal window ${frameName} does not have preload, not available on this version`)
-    return null
-  }
-
-  win.document.title = frameName
-  win.onclose = () => {
-    delete windowApi.getState().windows[frameName]
-  }
-  windowApi.getState().actions.subscribeWindow(frameName, win)
-
-  let next = () => {
-    const msg: WindowInfoSetMessage = {
-      ...initialMessage,
-      zoom: 1,
-      frameName: frameName,
-    }
-    win.electronPublish(WindowIpcTopic.SET_WINDOW_INFO, {...msg, onceId: 'id_' + JSON.stringify(msg, null, '') } as WindowInfoSetMessage)
-  }
-  windowApi.getState().actions.pingWindow(frameName).then(next, next)
 
   // TODO: find a better name for this
   // basically, it forces only one DOM to be rendered to the window
@@ -136,7 +63,7 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
     existingHide = null
   }
 
-  const ReactPortalComponent = (props: PortalComponentProps) => {
+  return function ReactPortalComponent(props: PortalComponentProps) {
     const inPlaceRef = useRef<HTMLDivElement>()
     const [
       setWindowInfo,
@@ -162,13 +89,13 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
     useEffect(() => {
       const show = (reason: string) => {
         log.debug(`showing portal window`, reason)
-          const msg: WindowInfoSetMessage = {
-            frameName: frameName,
-            visibility: { show: true, focus: props.takeFocus },
-            windowLevel: { oldShowHack: true }, // For Windows and Linux window levels
-          }
-          win.electronPublish(WindowIpcTopic.SET_WINDOW_INFO, msg)
-          props.onFirstShow?.()
+        const msg: WindowInfoSetMessage = {
+          frameName: frameName,
+          visibility: { show: true, focus: props.takeFocus },
+          windowLevel: { oldShowHack: true }, // For Windows and Linux window levels
+        }
+        win.electronPublish(WindowIpcTopic.SET_WINDOW_INFO, msg)
+        props.onFirstShow?.()
       }
 
       if (firstDomUpdate) { // attempting to reduce flicker by showing this after children mount and window resizes
@@ -228,7 +155,7 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
         return
       }
 
-      logIfDebug('handling updates', update, { updateSize, updatePosition })
+      logIfDebug.info('handling updates', update, { updateSize, updatePosition })
 
       // Unqueue updates if we're handling them
       for (let key in update) {
@@ -269,7 +196,7 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
         wb[key] = Math.round(wb[key])
       }
       log.debug(`setting bounds`, wb)
-      setWindowInfo(frameName, {frameName, bounds: wb})
+      setWindowInfo(frameName, { frameName, bounds: wb })
       if (shouldSetFirstDomUpdate) {
         setFirstDomUpdate(Date.now())
       }
@@ -295,23 +222,23 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
       (async () => {
         // @ts-ignore fonts API: https://stackoverflow.com/a/32292880
         await win?.document?.fonts?.ready
-        logIfDebug('dom update (font load)')
+        logIfDebug.info('dom update (font load)')
         tryUpdate.current({ dom: true })
       })()
     }, [win])
 
     useLayoutEffect(() => {
-      logIfDebug('dom update (rerender)')
+      logIfDebug.info('dom update (rerender)')
       tryUpdate.current({ dom: true })
     }, [props.children, windowInfo?.zoomFactor])
 
     useEffect(() => {
-      logIfDebug('parent window update', JSON.stringify(parentWindowInfo))
+      logIfDebug.info('parent window update', JSON.stringify(parentWindowInfo))
       tryUpdate.current({ parentWindow: true })
     }, [parentWindowInfo, props.referenceElement])
 
     useEffect(() => {
-      logIfDebug('manual reference change', props.manualReferenceChange)
+      logIfDebug.info('manual reference change', props.manualReferenceChange)
       tryUpdate.current({ manualReferenceChanged: true })
     }, [props.manualReferenceChange])
 
@@ -328,17 +255,17 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
       const hideWindow = () => {
         if (options?.resizeInsteadOfHide) {
           log.info('resizing window to 1x1 to prevent parent window being focused')
-          setWindowInfo(frameName, { frameName: frameName, bounds: { width: 1, height: 1 }})
+          setWindowInfo(frameName, { frameName: frameName, bounds: { width: 1, height: 1 } })
           const unsubscribe = windowApi.subscribe(s => {
             if (s.windowInfo[parentFrameName].focused) {
               log.info('actually hiding window after resize')
-              setWindowInfo(frameName, { frameName: frameName, visibility: { show: false }})
+              setWindowInfo(frameName, { frameName: frameName, visibility: { show: false } })
               unsubscribe()
             }
           })
           unsubscribers[frameName] = unsubscribe
         } else {
-          setWindowInfo(frameName, { frameName: frameName, visibility: { show: false }})
+          setWindowInfo(frameName, { frameName: frameName, visibility: { show: false } })
         }
       }
       parentWindow.addEventListener('beforeunload', hideWindow)
@@ -358,7 +285,7 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
       }
 
       const observer = new ResizeObserver(entries => {
-        logIfDebug('dom update (resizeobserver)')
+        logIfDebug.info('dom update (resizeobserver)')
         tryUpdate.current({ dom: true })
       })
       observer.observe(firstChild)
@@ -380,10 +307,5 @@ export const NewReactPortalWindow = (props: PortalConstructorProps): PortalResul
         {ReactDOM.createPortal(contents, win.document.body)}
       </div>
     </WindowContext.Provider>
-  }
-
-  return {
-    component: ReactPortalComponent,
-    win: win,
   }
 }
