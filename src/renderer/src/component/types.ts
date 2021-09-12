@@ -1,16 +1,20 @@
 import { Display, WH, Rectangle, WindowInfoUpdateMessage } from "@portal-windows/core"
 
 export interface WindowPositionCalculationProps {
-  position: {
-    vertical: WindowPosition,
-    horizontal: WindowPosition,
-  },
-  offsets: {
-    horizontal: WindowOffset[],
-    vertical: WindowOffset[],
-  }
+  position: Positions,
+  offsets: Offsets,
   correctBoundsRelativeTo?: Rectangle,
   boundsCorrectionStrategies: BoundsCorrectionStrategy[],
+}
+
+export type Positions = {
+  vertical: WindowPosition,
+  horizontal: WindowPosition,
+}
+
+export type Offsets = {
+  horizontal: WindowOffset[],
+  vertical: WindowOffset[],
 }
 
 export type WindowPosition = {
@@ -41,20 +45,22 @@ export enum Unit {
 export type BoundsCorrectionStrategy = {
   strategyType: BoundsCorrectionStrategyType,
 
+  // When strategyType is ReplaceParameters
+  replacedParameters?: {
+    position?: Positions
+    offsets?: Partial<Offsets>
+  }
+
   applyToOnly?: 'horizontalBounds' | 'verticalBounds'
   applyOnlyIf?: (props: {
     horizontalOutOfBounds: boolean,
     verticalOutOfBounds: boolean,
   }) => boolean
 
-  // replaceOffsetsOrPosition
-  replacePositionWith?: WindowPositionCalculationProps['position']
-  replaceOffsetsWith?: Partial<WindowPositionCalculationProps['offsets']>
-
   nestedStrategies?: BoundsCorrectionStrategy[]
 }
 
 export enum BoundsCorrectionStrategyType {
   SubtractExcess = 'subtractExcess',
-  ReplaceParameters = 'replaceOffsetsOrPosition'
+  ReplaceParameters = 'replaceParameters'
 }

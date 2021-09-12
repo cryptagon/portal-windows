@@ -1,7 +1,7 @@
 import { BoundsCorrectionStrategyType, RelativePosition } from './types'
 import { Unit } from './types'
 import { Display, WH, XY, WindowInfoUpdateMessage } from "@portal-windows/core"
-import {WindowOffset, WindowPosition, WindowPositionCalculationProps} from './types'
+import { WindowOffset, WindowPosition, WindowPositionCalculationProps, BoundsCorrectionStrategy, Offsets, Positions } from './types'
 
 export interface windowPositionCalculationState {
   wb: WH,
@@ -12,29 +12,17 @@ export interface windowPositionCalculationState {
 }
 
 export function recalculateWindowPosition(props: WindowPositionCalculationProps, state: windowPositionCalculationState): XY {
-  let positionWithoutOffset: XY = {
-    x: calculatePosition(props.position.horizontal, state).x,
-    y: calculatePosition(props.position.vertical, state).y,
-  }
-
-  let mutableOffsetProp = props.offsets
-  const initialOffset: XY = {
-    x: mutableOffsetProp.horizontal.reduce((prev, curr) => {
-      prev.x += calculateOffset(curr, state).x
-      return prev
-    }, {x: 0, y: 0}).x,
-    y: mutableOffsetProp.vertical.reduce((prev, curr) => {
-      prev.y += calculateOffset(curr, state).y
-      return prev
-    }, {x: 0, y: 0}).y
-  }
+  let mutableOffsetProps = props.offsets
+  const initialOffset: XY = getOffsetValues(mutableOffsetProps, state)
+  
+  let positionWithoutOffset: XY = getPosition(props.position, state)
 
   let resultingPosition: XY = {
     x: positionWithoutOffset.x + initialOffset.x,
     y: positionWithoutOffset.y + initialOffset.y,
   }
-  let { outOfBounds, boundsExceededDiff } = checkBounds(resultingPosition, state, props)
 
+  let { outOfBounds, boundsExceededDiff } = checkBounds(resultingPosition, state, props)
   for (let i = 0; (i < props.boundsCorrectionStrategies.length && outOfBounds); i++) {
     const boundsCorrectionStrategy = props.boundsCorrectionStrategies[i]
     const oldPosition = {...resultingPosition}
@@ -49,46 +37,9 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
       }
     }
 
-    if (boundsCorrectionStrategy.strategyType === BoundsCorrectionStrategyType.SubtractExcess) {
-      if (boundsExceededDiff.farX > 0) {
-        resultingPosition.x -= boundsExceededDiff.farX
-      }
-      if (boundsExceededDiff.nearX > 0) {
-        resultingPosition.x += boundsExceededDiff.nearX
-      }
-      if (boundsExceededDiff.farY > 0) {
-        resultingPosition.y -= boundsExceededDiff.farY
-      }
-      if (boundsExceededDiff.nearY > 0) {
-        resultingPosition.y += boundsExceededDiff.nearY
-      }
-    } else if (boundsCorrectionStrategy.strategyType === BoundsCorrectionStrategyType.ReplaceParameters) {
-      let position = positionWithoutOffset
-      let offset = initialOffset
-      if (boundsCorrectionStrategy.replacePositionWith) {
-        position = {
-          x: calculatePosition(props.position.horizontal, state).x,
-          y: calculatePosition(props.position.vertical, state).y,
-        }
-      }
-      if (boundsCorrectionStrategy.replaceOffsetsWith) {
-        mutableOffsetProp = {...mutableOffsetProp, ...boundsCorrectionStrategy.replaceOffsetsWith}
-        offset = {
-          x: mutableOffsetProp.horizontal.reduce((prev, curr) => {
-            prev.x += calculateOffset(curr, state).x
-            return prev
-          }, {x: 0, y: 0}).x,
-          y: mutableOffsetProp.vertical.reduce((prev, curr) => {
-            prev.y += calculateOffset(curr, state).y
-            return prev
-          }, {x: 0, y: 0}).y
-        }
-      }
-      resultingPosition = {
-        x: position.x + offset.x,
-        y: position.y + offset.y,
-      }
-    }
+    const boundsCorrection = getBoundsCorrectedPosition(state, positionWithoutOffset, initialOffset, mutableOffsetProps, boundsCorrectionStrategy, boundsExceededDiff)
+    mutableOffsetProps = boundsCorrection.mutableOffsetProps
+    resultingPosition = boundsCorrection.resultingPosition
 
     if (boundsCorrectionStrategy.applyToOnly === 'verticalBounds') {
       resultingPosition.x = oldPosition.x
@@ -103,6 +54,75 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
   }
 
   return resultingPosition
+}
+
+function getBoundsCorrectedPosition(
+  state: windowPositionCalculationState,
+  positionWithoutOffset: XY,
+  initialOffset: XY,
+  mutableOffsetProps: Offsets,
+  boundsCorrectionStrategy: BoundsCorrectionStrategy, 
+  boundsExceededDiff: BoundsDiff,
+) {
+  let resultingPosition: XY
+  if (boundsCorrectionStrategy.strategyType === BoundsCorrectionStrategyType.SubtractExcess) {
+    if (boundsExceededDiff.farX > 0) {
+      resultingPosition.x -= boundsExceededDiff.farX
+    }
+    if (boundsExceededDiff.nearX > 0) {
+      resultingPosition.x += boundsExceededDiff.nearX
+    }
+    if (boundsExceededDiff.farY > 0) {
+      resultingPosition.y -= boundsExceededDiff.farY
+    }
+    if (boundsExceededDiff.nearY > 0) {
+      resultingPosition.y += boundsExceededDiff.nearY
+    }
+  } else if (boundsCorrectionStrategy.strategyType === BoundsCorrectionStrategyType.ReplaceParameters) {
+    let position = positionWithoutOffset
+    let offset = initialOffset
+    
+    const newPositionParams = boundsCorrectionStrategy.replacedParameters.position
+    if (newPositionParams) {
+      position = getPosition(newPositionParams, state)
+    }
+
+    const newOffsets = boundsCorrectionStrategy.replacedParameters.offsets
+    if (newOffsets) {
+      mutableOffsetProps = {...mutableOffsetProps, ...newOffsets}
+      offset = getOffsetValues(mutableOffsetProps, state)
+    }
+
+    resultingPosition = {
+      x: position.x + offset.x,
+      y: position.y + offset.y,
+    }
+  }
+
+  return {
+    resultingPosition,
+    mutableOffsetProps,
+  }
+}
+
+function getPosition(positionParams: Positions, state): XY {
+  return {
+    x: calculatePosition(positionParams.horizontal, state).x,
+    y: calculatePosition(positionParams.vertical, state).y,
+  }
+}
+
+function getOffsetValues(offsetParams: Offsets, state: windowPositionCalculationState) {
+  return {
+    x: offsetParams.horizontal.reduce((prev, curr) => {
+      prev.x += calculateOffset(curr, state).x
+      return prev
+    }, {x: 0, y: 0}).x,
+    y: offsetParams.vertical.reduce((prev, curr) => {
+      prev.y += calculateOffset(curr, state).y
+      return prev
+    }, {x: 0, y: 0}).y
+  }
 }
 
 function calculateOffset(offset: WindowOffset, state: windowPositionCalculationState) {
@@ -178,9 +198,16 @@ function calculatePosition(position: WindowPosition, state: windowPositionCalcul
   return referenceBounds
 }
 
+type BoundsDiff = {
+  nearX: number,
+  farX: number,
+  nearY: number,
+  farY: number,
+}
+
 function checkBounds(position: XY, state: windowPositionCalculationState, props: WindowPositionCalculationProps) {
   const outerBounds = props.correctBoundsRelativeTo || state.parentDisplay.bounds
-  const boundsExceededDiff = {
+  const boundsExceededDiff: BoundsDiff = {
     farX: (position.x + state.wb.width) - (outerBounds.x + outerBounds.width),
     nearX: outerBounds.x - position.x,
 
