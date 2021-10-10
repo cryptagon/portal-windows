@@ -1,8 +1,9 @@
-import { OS } from "./types"
+import { OS } from './types'
 
 export function getOSInfo() {
   if (typeof window === 'undefined') return 'nodejs'
-  if (typeof navigator != 'undefined' && navigator.product == 'ReactNative') return navigator.product
+  if (typeof navigator != 'undefined' && navigator.product == 'ReactNative')
+    return navigator.product
   const userAgent = window.navigator.userAgent
   const platform = /[^(]+\(([^)]+)\)/.exec(userAgent)
   return platform[1]
@@ -27,17 +28,21 @@ export function getOS(): OS {
 
   if (typeof window === 'undefined') {
     // use node.js version of the check
+    // @ts-ignore
     switch (process.platform) {
-      case 'darwin': return os = 'mac'
-      case 'win32': return os = 'windows'
-      case 'android': return os = 'android'
+      case 'darwin':
+        return (os = 'mac')
+      case 'win32':
+        return (os = 'windows')
+      case 'android':
+        return (os = 'android')
       default:
         return 'linux'
     }
   }
 
   if (typeof navigator != 'undefined' && navigator.product == 'ReactNative')
-    return os = 'react-native'
+    return (os = 'react-native')
 
   let userAgent = window.navigator.userAgent,
     platform = window.navigator.platform,

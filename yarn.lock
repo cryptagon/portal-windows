@@ -1243,7 +1243,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@portal-windows/core@*, @portal-windows/core@workspace:src/core":
+"@portal-windows/core@workspace:src/core":
   version: 0.0.0-use.local
   resolution: "@portal-windows/core@workspace:src/core"
   dependencies:
@@ -1252,26 +1252,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@portal-windows/examples@workspace:examples":
-  version: 0.0.0-use.local
-  resolution: "@portal-windows/examples@workspace:examples"
-  dependencies:
-    "@portal-windows/core": "*"
-    "@portal-windows/node": "*"
-    "@portal-windows/renderer": "*"
-    "@types/electron": ^1.6.10
-    "@types/node": ^16.7.1
-    "@types/react": ^17.0.19
-    "@types/react-dom": ^17.0.9
-    electron: ^13.2.2
-    path: ^0.12.7
-    react: ^17.0.2
-    react-dom: ^17.0.2
-    typescript: ^4.3.5
-  languageName: unknown
-  linkType: soft
-
-"@portal-windows/node@*, @portal-windows/node@workspace:src/node":
+"@portal-windows/node@workspace:src/node":
   version: 0.0.0-use.local
   resolution: "@portal-windows/node@workspace:src/node"
   dependencies:
@@ -1283,7 +1264,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@portal-windows/renderer@*, @portal-windows/renderer@workspace:src/renderer":
+"@portal-windows/renderer@workspace:src/renderer":
   version: 0.0.0-use.local
   resolution: "@portal-windows/renderer@workspace:src/renderer"
   dependencies:
@@ -1458,17 +1439,6 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: 3f2ae9ab6f7d5c7b480cd5962fe996f0682173036a8437cfde0122bc8594e0e1482864b766dbf611daef40ed65a9fc73ec9510e12511d68c064f309f25219f67
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:^17.0.19":
-  version: 17.0.19
-  resolution: "@types/react@npm:17.0.19"
-  dependencies:
-    "@types/prop-types": "*"
-    "@types/scheduler": "*"
-    csstype: ^3.0.2
-  checksum: d5af52623dd863e5a9f64eb72979f19c21e03012e25ee93adc93f664ed7976e81b654128dc653b225ad5ba2aaae24e0febe37face272bb051d6289e23ed7177d
   languageName: node
   linkType: hard
 
@@ -2630,19 +2600,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:^13.2.2":
-  version: 13.2.2
-  resolution: "electron@npm:13.2.2"
-  dependencies:
-    "@electron/get": ^1.0.1
-    "@types/node": ^14.6.2
-    extract-zip: ^1.0.3
-  bin:
-    electron: cli.js
-  checksum: b6c6b71ed574f6c6a28cc3ac973d5791ef0af30b7a431cad00e949e5b2d97338dc9093d2aee883696c6e637b573b51ea390b3cce8e72897129119ca8b53f7fc1
-  languageName: node
-  linkType: hard
-
 "emoji-regex@npm:^7.0.1":
   version: 7.0.3
   resolution: "emoji-regex@npm:7.0.3"
@@ -3577,13 +3534,6 @@ __metadata:
   version: 2.0.4
   resolution: "inherits@npm:2.0.4"
   checksum: 4a48a733847879d6cf6691860a6b1e3f0f4754176e4d71494c41f3475553768b10f84b5ce1d40fbd0e34e6bfbb864ee35858ad4dd2cf31e02fc4a154b724d7f1
-  languageName: node
-  linkType: hard
-
-"inherits@npm:2.0.3":
-  version: 2.0.3
-  resolution: "inherits@npm:2.0.3"
-  checksum: 78cb8d7d850d20a5e9a7f3620db31483aa00ad5f722ce03a55b110e5a723539b3716a3b463e2b96ce3fe286f33afc7c131fa2f91407528ba80cea98a7545d4c0
   languageName: node
   linkType: hard
 
@@ -5302,16 +5252,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path@npm:^0.12.7":
-  version: 0.12.7
-  resolution: "path@npm:0.12.7"
-  dependencies:
-    process: ^0.11.1
-    util: ^0.10.3
-  checksum: 5dedb71e78fc008fcba797defc0b4e1cf06c1f18e0a631e03ba5bb505136f587ff017afc14f9a3d481cbe77aeedff7dc0c1d2ce4d820c1ebf3c4281ca49423a1
-  languageName: node
-  linkType: hard
-
 "pend@npm:~1.2.0":
   version: 1.2.0
   resolution: "pend@npm:1.2.0"
@@ -5398,13 +5338,6 @@ __metadata:
   version: 2.0.1
   resolution: "process-nextick-args@npm:2.0.1"
   checksum: 1d38588e520dab7cea67cbbe2efdd86a10cc7a074c09657635e34f035277b59fbb57d09d8638346bf7090f8e8ebc070c96fa5fd183b777fff4f5edff5e9466cf
-  languageName: node
-  linkType: hard
-
-"process@npm:^0.11.1":
-  version: 0.11.10
-  resolution: "process@npm:0.11.10"
-  checksum: bfcce49814f7d172a6e6a14d5fa3ac92cc3d0c3b9feb1279774708a719e19acd673995226351a082a9ae99978254e320ccda4240ddc474ba31a76c79491ca7c3
   languageName: node
   linkType: hard
 
@@ -6709,11 +6642,11 @@ typescript@^4.3.5:
 
 "typescript@patch:typescript@^4.3.5#~builtin<compat/typescript>":
   version: 4.3.5
-  resolution: "typescript@patch:typescript@npm%3A4.3.5#~builtin<compat/typescript>::version=4.3.5&hash=d8b4e7"
+  resolution: "typescript@patch:typescript@npm%3A4.3.5#~builtin<compat/typescript>::version=4.3.5&hash=32657b"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: bc2c4fdf0f1557fdafe4ef74848c72ebd9c8c60829568248f869121aea2bb20e16649a252431d0acb185ec118143be22bed73d08f64379557810d82756afedde
+  checksum: 4e2edec3c9b7b9a22ad9cbf9371339d9e13bfe44731f0e2d6a5287f991c3b0e3e0ac0c0ebbf9bf6fc2051e30559c789bfc9cf572cd6b836a0222ae141fac1dba
   languageName: node
   linkType: hard
 
@@ -6829,15 +6762,6 @@ typescript@^4.3.5:
   dependencies:
     object.getownpropertydescriptors: ^2.0.3
   checksum: 75e74c46213e49e8d6a85cef942dcbfd8abf2389e789eddfde10e354349778cfca36fe33fa7c74a3ff1c7170462a7f856d5471bd69b06eb37a69362ffe21434e
-  languageName: node
-  linkType: hard
-
-"util@npm:^0.10.3":
-  version: 0.10.4
-  resolution: "util@npm:0.10.4"
-  dependencies:
-    inherits: 2.0.3
-  checksum: 913f9a90d05a60e91f91af01b8bd37e06bca4cc02d7b49e01089f9d5b78be2fffd61fb1a41b517de7238c5fc7337fa939c62d1fb4eb82e014894c7bee6637aaf
   languageName: node
   linkType: hard
 

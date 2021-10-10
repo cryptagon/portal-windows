@@ -18,7 +18,6 @@
     "zustand": "0.2.2"
   },
   "gitHead": "85710f8cbbd98da49d7374c1a3218a46f413bd22",
-  "private": false,
   "publishConfig": {
     "access": "public"
   }

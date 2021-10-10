@@ -13,7 +13,7 @@ import { setStyles } from './styles';
 import { WindowPositionCalculationProps } from './types';
 import { useWindow, WindowContext } from './useWindow';
 import { useUpdatedRef } from './utils';
-import { PortalConstructorProps, PortalResult } from 'src';
+import { PortalConstructorProps } from './constructor';
 
 
 export type PortalComponentProps = {
