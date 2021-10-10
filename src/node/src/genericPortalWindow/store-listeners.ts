@@ -24,7 +24,7 @@ const debug = process.env.LISTENER_DEBUG
 logger.info(
   `${debug ? 'Showing' : 'Not showing'} store listener logs. Use $LISTENER_DEBUG to change.`
 )
-const log = debug ? logger.info : (...p: any[]) => {}
+const log = debug ? logger.info : (..._args: any) => {}
 
 export const attachSystemInfoListener = (windowContainingStore: BrowserWindow) => {
   let dndEnabled: boolean = false
@@ -48,7 +48,7 @@ export const attachSystemInfoListener = (windowContainingStore: BrowserWindow) =
 
   windowContainingStore.webContents.on(
     'ipc-message',
-    (event: Electron.Event, channel: string, ...args: any[]) => {
+    (_event: Electron.Event, channel: string, ..._args: any[]) => {
       if (channel === WindowIpcTopic.REQUEST_SYSTEM_INFO) {
         sendSystemInfo()
       }
@@ -98,7 +98,7 @@ export const attachMouseMoveListener = (windowContainingStore: BrowserWindow) =>
 
   windowContainingStore.webContents.on(
     'ipc-message',
-    (event: Electron.Event, channel: string, ...args: any[]) => {
+    (_event: Electron.Event, channel: string, ..._args: any[]) => {
       if (channel === WindowIpcTopic.REQUEST_MOUSE_INFO) {
         sendMouseInfo()
       }
@@ -132,7 +132,7 @@ export const attachDisplayChangeListener = (windowContainingStore: BrowserWindow
 
   windowContainingStore.webContents.on(
     'ipc-message',
-    (event: Electron.Event, channel: string, ...args: any[]) => {
+    (_event: Electron.Event, channel: string, ..._args: any[]) => {
       if (channel === WindowIpcTopic.REQUEST_DISPLAY_INFO) {
         sendDisplayInfo()
       }
@@ -185,7 +185,7 @@ export const attachWindowStoreListener = (
   let capturerCount = 0
   receivingWindow.webContents.on(
     'ipc-message',
-    (event: Electron.Event, channel: string, ...args: any[]) => {
+    (_event: Electron.Event, channel: string, ...args: any[]) => {
       try {
         const msg: WindowInfoRequestMessage = args.length ? args[0] : undefined
         if (msg?.frameName !== frameName) {

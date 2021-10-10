@@ -7,8 +7,6 @@ import {
   debounce,
   DebounceStyle,
   GenericLogger,
-  isMac,
-  loggerWithPrefix,
   Rectangle,
   WindowFrameName,
   WindowInfoSetMessage,
@@ -57,14 +55,14 @@ export const createPortalWindowComponent = (
   log: GenericLogger,
   logIfDebug: GenericLogger
 ) => {
-  const { frameName, parentFrameName, initialMessage, options, windowOptionsString } = props
+  const { frameName, parentFrameName, options } = props
 
   // TODO: find a better name for this
   // basically, it forces only one DOM to be rendered to the window
   // at a given time (but it's a stopgap measure, if everything else fails)
-  let existingHide: () => void = null
+  let existingHide: undefined | (() => void) = undefined
 
-  const addHide = (forceHide: () => void) => {
+  const addHide = (forceHide: undefined | (() => void)) => {
     if (existingHide) {
       existingHide()
     }
@@ -72,11 +70,11 @@ export const createPortalWindowComponent = (
   }
 
   const removeHide = () => {
-    existingHide = null
+    existingHide = undefined
   }
 
   return function ReactPortalComponent(props: PortalComponentProps) {
-    const inPlaceRef = useRef<HTMLDivElement>()
+    const inPlaceRef = useRef<HTMLDivElement | null>(null)
     const [setWindowInfo, windowInfo, parentWindowInfo] = useWindowStore((s) => [
       s.actions.setWindowInfo,
       s.windowInfo[frameName],
@@ -180,7 +178,8 @@ export const createPortalWindowComponent = (
       logIfDebug.info('handling updates', update, { updateSize, updatePosition })
 
       // Unqueue updates if we're handling them
-      for (let key in update) {
+      for (const untypedKey in update) {
+        const key = untypedKey as keyof updateType
         delete queuedUpdates.current[key]
       }
 
@@ -214,8 +213,10 @@ export const createPortalWindowComponent = (
         wb.y = updatedWindowPosition.y
       }
 
-      for (let key in wb) {
-        wb[key] = Math.round(wb[key])
+      for (const untypedKey in wb) {
+        const key = untypedKey as keyof Rectangle
+        const value = wb[key]!
+        wb[key] = Math.round(value)
       }
       log.debug(`setting bounds`, wb)
       setWindowInfo(frameName, { frameName, bounds: wb })
@@ -246,7 +247,7 @@ export const createPortalWindowComponent = (
         return
       }
 
-      ;(async () => {
+      ; (async () => {
         // @ts-ignore fonts API: https://stackoverflow.com/a/32292880
         await win?.document?.fonts?.ready
         logIfDebug.info('dom update (font load)')
@@ -284,7 +285,7 @@ export const createPortalWindowComponent = (
           log.info('resizing window to 1x1 to prevent parent window being focused')
           setWindowInfo(frameName, { frameName: frameName, bounds: { width: 1, height: 1 } })
           const unsubscribe = windowApi.subscribe((s) => {
-            if (s.windowInfo[parentFrameName].focused) {
+            if (s.windowInfo[parentFrameName]?.focused) {
               log.info('actually hiding window after resize')
               setWindowInfo(frameName, { frameName: frameName, visibility: { show: false } })
               unsubscribe()
@@ -311,7 +312,7 @@ export const createPortalWindowComponent = (
         return
       }
 
-      const observer = new ResizeObserver((entries) => {
+      const observer = new ResizeObserver(() => {
         logIfDebug.info('dom update (resizeobserver)')
         tryUpdate.current({ dom: true })
       })
@@ -333,7 +334,9 @@ export const createPortalWindowComponent = (
 
     return (
       <WindowContext.Provider value={win as Window & typeof globalThis}>
-        <div ref={inPlaceRef}>{ReactDOM.createPortal(contents, win.document.body)}</div>
+        <div ref={inPlaceRef}>
+          {ReactDOM.createPortal(contents, win.document.body)}
+        </div>
       </WindowContext.Provider>
     )
   }

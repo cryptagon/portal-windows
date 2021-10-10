@@ -19,9 +19,9 @@ export type WindowStore = {
   windowToFrameName: { [windowId: string]: WindowFrameName }
   windowInfo: { [frameName in WindowFrameName]?: WindowInfoUpdateMessage }
   displayInfo: { [id: number]: Display }
-  primaryDisplayId: number
-  mouseInfo: MouseInfoUpdateMessage
-  systemInfo: SystemInfoUpdateMessage
+  primaryDisplayId: number | undefined
+  mouseInfo: MouseInfoUpdateMessage | undefined
+  systemInfo: SystemInfoUpdateMessage | undefined
 
   actions: WindowActions
 }
@@ -35,8 +35,9 @@ const logger = loggerWithPrefix('[windowStore]')
 class WindowActions {
   constructor(public set: SetState<WindowStore>, public get: GetState<WindowStore>) {}
 
-  rootFrameName: WindowFrameName // assuming windows with empty name are the root frame, portal windows seem to have the proper name
+  rootFrameName: WindowFrameName | null = null // assuming windows with empty name are the root frame, portal windows seem to have the proper name
   init = (frameName: WindowFrameName) => {
+    // @ts-ignore
     if (SHOW_DEV) window['windowStore'] = this
 
     this.rootFrameName = frameName
@@ -56,7 +57,7 @@ class WindowActions {
             displayInfo: value.displays.reduce((prev, curr) => {
               prev[curr.id] = curr
               return prev
-            }, {}),
+            }, {} as { [id: number]: Display }),
             primaryDisplayId: value.primaryDisplayId,
           })
         }
@@ -92,7 +93,7 @@ class WindowActions {
   ) => {
     const usingFrameName = typeof winOrFrameName === 'string'
 
-    let win: Window
+    let win: Window | undefined
     let frameName: WindowFrameName
     if (usingFrameName) {
       frameName = winOrFrameName as WindowFrameName
@@ -177,8 +178,7 @@ class WindowActions {
         return
       }
 
-      let pong
-      pong = () => {
+      const pong = () => {
         resolve()
         win.electronUnsubscribe(WindowIpcTopic.UPDATE_WINDOW_INFO, pong)
       }

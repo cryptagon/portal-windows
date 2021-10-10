@@ -12,7 +12,7 @@ export function copyStyles(sourceDoc: Document, targetDoc: Document) {
       Array.from(originalSS.cssRules)
         .reverse()
         .forEach((rule) => {
-          newSS.sheet.insertRule(rule.cssText)
+          newSS?.sheet?.insertRule(rule.cssText)
         })
     })
   } catch (e) {

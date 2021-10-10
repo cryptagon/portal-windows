@@ -81,7 +81,10 @@ function getBoundsCorrectedPosition(
   boundsCorrectionStrategy: BoundsCorrectionStrategy,
   boundsExceededDiff: BoundsDiff
 ) {
-  let resultingPosition: XY
+  let resultingPosition: XY = {
+    x: positionWithoutOffset.x + initialOffset.x,
+    y: positionWithoutOffset.y + initialOffset.y,
+  }
   if (boundsCorrectionStrategy.strategyType === BoundsCorrectionStrategyType.SubtractExcess) {
     if (boundsExceededDiff.farX > 0) {
       resultingPosition.x -= boundsExceededDiff.farX
@@ -101,12 +104,12 @@ function getBoundsCorrectedPosition(
     let position = positionWithoutOffset
     let offset = initialOffset
 
-    const newPositionParams = boundsCorrectionStrategy.replacedParameters.position
+    const newPositionParams = boundsCorrectionStrategy.replacedParameters?.position
     if (newPositionParams) {
       position = getPosition(newPositionParams, state)
     }
 
-    const newOffsets = boundsCorrectionStrategy.replacedParameters.offsets
+    const newOffsets = boundsCorrectionStrategy.replacedParameters?.offsets
     if (newOffsets) {
       mutableOffsetProps = { ...mutableOffsetProps, ...newOffsets }
       offset = getOffsetValues(mutableOffsetProps, state)
@@ -124,7 +127,7 @@ function getBoundsCorrectedPosition(
   }
 }
 
-function getPosition(positionParams: Positions, state): XY {
+function getPosition(positionParams: Positions, state: windowPositionCalculationState): XY {
   return {
     x: calculatePosition(positionParams.horizontal, state).x,
     y: calculatePosition(positionParams.vertical, state).y,
@@ -182,6 +185,8 @@ function calculateOffset(offset: WindowOffset, state: windowPositionCalculationS
       height: 1,
       width: 1,
     }
+  } else {
+    throw 'invalid unit type, ' + offset.unit
   }
 
   return {
@@ -218,6 +223,8 @@ function calculatePosition(position: WindowPosition, state: windowPositionCalcul
       x: state.parentWindowInfo.bounds.x + refElemBounds.x,
       y: state.parentWindowInfo.bounds.y + refElemBounds.y,
     }
+  } else {
+    throw 'invalid position startaxis property, ' + position.startAxisAt
   }
 
   return referenceBounds

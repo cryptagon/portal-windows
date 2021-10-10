@@ -2,16 +2,16 @@
 // https://github.com/electron/electron-quick-start-typescript/blob/master/src/main.ts
 
 import { WindowFrameName } from '@portal-windows/core'
-import { GenericPortalWindow } from '@portal-windows/node'
 import {
   attachDisplayChangeListener,
   attachMouseMoveListener,
   attachSystemInfoListener,
   attachWindowStoreListener,
+  GenericPortalWindow,
 } from '@portal-windows/node'
 import { app, BrowserWindow } from 'electron'
 import * as path from 'path'
-import { MAIN_FRAME_NAME } from './consts'
+import { MAIN_FRAME_NAME } from '../core/consts'
 
 function createWindow() {
   // Create the browser window.

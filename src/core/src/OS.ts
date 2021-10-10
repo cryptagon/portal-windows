@@ -6,7 +6,7 @@ export function getOSInfo() {
     return navigator.product
   const userAgent = window.navigator.userAgent
   const platform = /[^(]+\(([^)]+)\)/.exec(userAgent)
-  return platform[1]
+  return platform?.[1] ?? 'unknown'
 }
 
 export const isMac = getOS() == 'mac'
@@ -21,28 +21,28 @@ export const isMacBigSur = (() => {
 export const isWindows = getOS() == 'windows'
 export const isLinux = getOS() == 'linux'
 
-// detect operating system
-var os: OS = null
+// fix 'cannot access variable "os" before initialization' issue
+export let _os: OS | null = null
 export function getOS(): OS {
-  if (os) return os
+  if (_os) return _os
 
   if (typeof window === 'undefined') {
     // use node.js version of the check
     // @ts-ignore
     switch (process.platform) {
       case 'darwin':
-        return (os = 'mac')
+        return (_os = 'mac')
       case 'win32':
-        return (os = 'windows')
+        return (_os = 'windows')
       case 'android':
-        return (os = 'android')
+        return (_os = 'android')
       default:
         return 'linux'
     }
   }
 
   if (typeof navigator != 'undefined' && navigator.product == 'ReactNative')
-    return (os = 'react-native')
+    return (_os = 'react-native')
 
   let userAgent = window.navigator.userAgent,
     platform = window.navigator.platform,
@@ -51,16 +51,18 @@ export function getOS(): OS {
     iosPlatforms = ['iPhone', 'iPad', 'iPod']
 
   if (macosPlatforms.indexOf(platform) !== -1) {
-    os = 'mac'
+    _os = 'mac'
   } else if (iosPlatforms.indexOf(platform) !== -1) {
-    os = 'ios'
+    _os = 'ios'
   } else if (windowsPlatforms.indexOf(platform) !== -1) {
-    os = 'windows'
+    _os = 'windows'
   } else if (/Android/.test(userAgent)) {
-    os = 'android'
-  } else if (!os && /Linux/.test(platform)) {
-    os = 'linux'
+    _os = 'android'
+  } else if (!_os && /Linux/.test(platform)) {
+    _os = 'linux'
+  } else {
+    _os = 'unknown'
   }
 
-  return os
+  return _os
 }

@@ -4,7 +4,6 @@ import {
   WindowFrameName,
   WindowInfoSetMessage,
 } from '@portal-windows/core'
-import React from 'react'
 import { createPortalWindowComponent } from './createComponent'
 import { createPortalWindow } from './createWindow'
 
@@ -23,15 +22,17 @@ export const NewReactPortalWindow = (props: PortalConstructorProps) => {
   const { frameName } = props
 
   const log = loggerWithPrefix(`[reactPortalWindow] [${frameName}] (init)`)
-  const logIfDebug = Object.keys(log).reduce((prev, key) => {
+  const logIfDebug = Object.keys(log).reduce((prev, untypedKey) => {
+    const key = untypedKey as keyof typeof log
     const logCall = log[key]
     prev[key] = (...args: any) => {
+      // @ts-ignore
       if (window['portalDebug']) {
-        logCall()
+        logCall(...args)
       }
     }
     return prev
-  }, {}) as GenericLogger
+  }, {} as GenericLogger) as GenericLogger
 
   const win = createPortalWindow(props, log)
   const component = createPortalWindowComponent(props, win, log, logIfDebug)

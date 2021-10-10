@@ -146,4 +146,4 @@ export type Size = {
   height: number
 }
 
-export type OS = 'windows' | 'mac' | 'linux' | 'android' | 'ios' | 'react-native'
+export type OS = 'windows' | 'mac' | 'linux' | 'android' | 'ios' | 'react-native' | 'unknown'

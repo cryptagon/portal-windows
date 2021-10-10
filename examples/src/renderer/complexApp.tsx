@@ -11,7 +11,7 @@ import {
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useRef } from 'react'
-import { MAIN_FRAME_NAME, ROTATING_MIRROR_WINDOW, SIMPLE_MIRROR_WINDOW } from './consts'
+import { MAIN_FRAME_NAME, ROTATING_MIRROR_WINDOW, SIMPLE_MIRROR_WINDOW } from '../core/consts'
 
 type Props = {}
 const App: React.FunctionComponent<Props> = (props: Props) => {

@@ -1,23 +1,37 @@
-var path = require('path')
+const path = require('path')
 
 module.exports = {
   watch: false,
+  context: __dirname,
   target: 'electron-renderer',
   mode: 'development',
   devtool: 'inline-source-map',
-  entry: './src/renderer',
+  entry: {
+    renderer: './src/renderer/index',
+    node: './src/node/index',
+    preload: './src/node/preload',
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'renderer.js',
+    filename: '[name].js',
   },
   resolve: {
-    // Add `.ts` and `.tsx` as a resolvable extension.
     extensions: ['.ts', '.tsx', '.js'],
+    alias: {
+      ['@portal-windows/core']: path.resolve(__dirname, '../src/core'),
+      ['@portal-windows/node']: path.resolve(__dirname, '../src/node'),
+      ['@portal-windows/renderer']: path.resolve(__dirname, '../src/renderer'),
+    },
   },
   module: {
     rules: [
-      // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
-      { test: /\.tsx?$/, loader: 'ts-loader' },
+      {
+        test: /\.tsx?$/,
+        loader: 'ts-loader',
+        options: {
+          projectReferences: true,
+        },
+      },
     ],
   },
 }

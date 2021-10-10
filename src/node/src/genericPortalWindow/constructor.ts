@@ -6,8 +6,8 @@ import { attachWindowStoreListener } from './store-listeners'
 import { WindowFrameName, OverlayingProps, isWindows } from '@portal-windows/core'
 
 export class GenericPortalWindow {
-  focused: boolean
-  window: BrowserWindow | null
+  focused: boolean = false
+  window: BrowserWindow | null = null
 
   init = (
     eventOptions: BrowserWindowConstructorOptions,

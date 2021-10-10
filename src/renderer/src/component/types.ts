@@ -1,4 +1,4 @@
-import { Display, WH, Rectangle, WindowInfoUpdateMessage } from '@portal-windows/core'
+import { Display, Rectangle } from '@portal-windows/core'
 
 export interface WindowPositionCalculationProps {
   position: Positions

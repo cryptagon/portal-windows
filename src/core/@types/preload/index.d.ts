@@ -2,14 +2,14 @@ import { WindowIpcTopic } from 'src'
 
 declare global {
   interface Window {
-    electronSubscribe?: (
+    electronSubscribe: (
       message: WindowIpcTopic,
       callback: (message: string, ...args: any[]) => void
     ) => void
-    electronUnsubscribe?: (
+    electronUnsubscribe: (
       message: WindowIpcTopic,
       callback?: (message: string, ...args: any[]) => void
     ) => void
-    electronPublish?: (message: WindowIpcTopic, ...args: any[]) => void
+    electronPublish: (message: WindowIpcTopic, ...args: any[]) => void
   }
 }
