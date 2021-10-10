@@ -1,48 +1,63 @@
-import { Display, WH, Rectangle, WindowInfoUpdateMessage } from "@portal-windows/core"
+import { Display, Rectangle } from '@portal-windows/core'
+
+export interface WindowPositionCalculationProps {
+  position: Positions
+  offsets: Offsets
+  correctBoundsRelativeTo?: Rectangle
+  boundsCorrectionStrategies: BoundsCorrectionStrategy[]
+}
+
+export type Positions = {
+  vertical: WindowPosition
+  horizontal: WindowPosition
+}
+
+export type Offsets = {
+  horizontal: WindowOffset[]
+  vertical: WindowOffset[]
+}
+
+export type WindowPosition = {
+  startAxisAt: RelativePosition
+  useCustomDisplay?: Display
+}
+
+export enum RelativePosition {
+  Display = 'displayPosition',
+  ParentWindow = 'parentWindowPosition',
+  ReferenceElement = 'refElemPosition',
+}
 
 export type WindowOffset = {
-  units: 'displaySizeMultiple' | 'refElemSizeMultiple' | 'parentWindowSizeMultiple' | 'portalWindowSizeMultiple' | 'px'
+  unit: Unit
   relativeToCustomDisplay?: Display
   value: number
 }
 
-export type WindowPosition = {
-  relativeTo: 'displayPosition' | 'parentWindowPosition' | 'refElemPosition'
-  relativeToCustomDisplay?: Display
+export enum Unit {
+  DisplaySize = 'displaySizeMultiple',
+  ReferenceElementSize = 'refElemSizeMultiple',
+  ParentWindowSize = 'parentWindowSizeMultiple',
+  PortalWindowSize = 'portalWindowSizeMultiple',
+  Pixels = 'pixels',
 }
 
 export type BoundsCorrectionStrategy = {
-  strategyType: 'subtractExcess' | 'replaceOffsetsOrPosition'
+  strategyType: BoundsCorrectionStrategyType
+
+  // When strategyType is ReplaceParameters
+  replacedParameters?: {
+    position?: Positions
+    offsets?: Partial<Offsets>
+  }
 
   applyToOnly?: 'horizontalBounds' | 'verticalBounds'
-  applyOnlyIf?: (props: {
-    horizontalOutOfBounds: boolean,
-    verticalOutOfBounds: boolean,
-  }) => boolean
-
-  // replaceOffsetsOrPosition
-  replacePositionWith?: WindowPositionCalculationProps['position']
-  replaceOffsetsWith?: Partial<WindowPositionCalculationProps['offsets']>
+  applyOnlyIf?: (props: { horizontalOutOfBounds: boolean; verticalOutOfBounds: boolean }) => boolean
 
   nestedStrategies?: BoundsCorrectionStrategy[]
 }
-export interface WindowPositionCalculationProps {
-  position: {
-    vertical: WindowPosition,
-    horizontal: WindowPosition,
-  },
-  offsets: {
-    horizontal: WindowOffset[],
-    vertical: WindowOffset[],
-  }
-  correctBoundsRelativeTo?: Rectangle,
-  boundsCorrectionStrategies: BoundsCorrectionStrategy[],
-}
 
-export interface windowPositionCalculationState {
-  wb: WH,
-  parentWindowInfo: WindowInfoUpdateMessage
-  windowInfo: WindowInfoUpdateMessage
-  parentDisplay: Display
-  refElem: Element
+export enum BoundsCorrectionStrategyType {
+  SubtractExcess = 'subtractExcess',
+  ReplaceParameters = 'replaceParameters',
 }

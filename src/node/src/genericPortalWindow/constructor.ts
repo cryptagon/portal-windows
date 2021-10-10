@@ -6,14 +6,14 @@ import { attachWindowStoreListener } from './store-listeners'
 import { WindowFrameName, OverlayingProps, isWindows } from '@portal-windows/core'
 
 export class GenericPortalWindow {
-  focused: boolean
-  window: BrowserWindow | null
+  focused: boolean = false
+  window: BrowserWindow | null = null
 
   init = (
     eventOptions: BrowserWindowConstructorOptions,
     frameName: WindowFrameName,
     overlayingProps?: OverlayingProps,
-    overrideOptions?: BrowserWindowConstructorOptions,
+    overrideOptions?: BrowserWindowConstructorOptions
   ) => {
     if (this.window) {
       this.window.destroy()
@@ -50,10 +50,10 @@ export class GenericPortalWindow {
         enableRemoteModule: true,
         affinity: process.platform == 'win32' ? 'tooltip' : undefined,
         preload: path.join(__dirname, `preload.js`),
-        nodeIntegration: false
+        nodeIntegration: false,
       },
 
-      ...(overrideOptions || {})
+      ...(overrideOptions || {}),
     }
 
     let win = new BrowserWindow(options)

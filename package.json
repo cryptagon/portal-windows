@@ -16,7 +16,8 @@
     "packages": [
       "src/core",
       "src/node",
-      "src/renderer"
+      "src/renderer",
+      "examples"
     ]
   },
   "devDependencies": {
@@ -24,6 +25,5 @@
     "typescript": "^4.3.5",
     "wsrun": "^5.2.4"
   },
-  "packageManager": "yarn@3.0.1",
-  "private": false
+  "packageManager": "yarn@3.0.2"
 }

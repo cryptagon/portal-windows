@@ -9,11 +9,9 @@
     "types": ["preload"],
     "typeRoots": ["../core/@types"],
     "paths": {
-      "@portal-windows/core": ["../core/src"],
-    },
+      "@portal-windows/core": ["../core/src"]
+    }
   },
-  "references": [
-    { "path": "../core/tsconfig.json" },
-  ],
-  "exclude": ["dist"],
+  "references": [{ "path": "../core" }],
+  "exclude": ["dist"]
 }
