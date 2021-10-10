@@ -1,16 +1,16 @@
 {
   "name": "examples",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "dist/node.js",
   "scripts": {
     "test": "jest",
     "start": "tsc --build && webpack --config webpack.config.js && electron ./dist/node.js"
   },
   "dependencies": {
-    "@portal-windows/core": "^0.1.1",
-    "@portal-windows/node": "^0.1.1",
-    "@portal-windows/renderer": "^0.1.1",
+    "@portal-windows/core": "^0.1.2",
+    "@portal-windows/node": "^0.1.2",
+    "@portal-windows/renderer": "^0.1.2",
     "@types/electron": "^1.6.10",
     "@types/node": "^16.10.3",
     "@types/react": "^17.0.19",
