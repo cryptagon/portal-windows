@@ -14,7 +14,7 @@
     "electron": "^13.1.9",
     "typescript": "^4.3.5"
   },
-  "gitHead": "85710f8cbbd98da49d7374c1a3218a46f413bd22",
+  "gitHead": "7d2c3d9760ea4c8bf633c0409008a10a962dfb22",
   "publishConfig": {
     "access": "public"
   }

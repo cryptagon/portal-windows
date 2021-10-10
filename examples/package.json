@@ -1,5 +1,6 @@
 {
   "name": "examples",
+  "private": true,
   "version": "0.1.1",
   "main": "dist/node.js",
   "scripts": {
@@ -24,5 +25,6 @@
     "ts-loader": "^9.2.5",
     "webpack": "^5.51.1",
     "webpack-cli": "^4.8.0"
-  }
+  },
+  "gitHead": "7d2c3d9760ea4c8bf633c0409008a10a962dfb22"
 }
