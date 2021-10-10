@@ -1,20 +1,30 @@
 import { BoundsCorrectionStrategyType, RelativePosition } from './types'
 import { Unit } from './types'
-import { Display, WH, XY, WindowInfoUpdateMessage } from "@portal-windows/core"
-import { WindowOffset, WindowPosition, WindowPositionCalculationProps, BoundsCorrectionStrategy, Offsets, Positions } from './types'
+import { Display, WH, XY, WindowInfoUpdateMessage } from '@portal-windows/core'
+import {
+  WindowOffset,
+  WindowPosition,
+  WindowPositionCalculationProps,
+  BoundsCorrectionStrategy,
+  Offsets,
+  Positions,
+} from './types'
 
 export interface windowPositionCalculationState {
-  wb: WH,
+  wb: WH
   parentWindowInfo: WindowInfoUpdateMessage
   windowInfo: WindowInfoUpdateMessage
   parentDisplay: Display
   refElem: Element
 }
 
-export function recalculateWindowPosition(props: WindowPositionCalculationProps, state: windowPositionCalculationState): XY {
+export function recalculateWindowPosition(
+  props: WindowPositionCalculationProps,
+  state: windowPositionCalculationState
+): XY {
   let mutableOffsetProps = props.offsets
   const initialOffset: XY = getOffsetValues(mutableOffsetProps, state)
-  
+
   let positionWithoutOffset: XY = getPosition(props.position, state)
 
   let resultingPosition: XY = {
@@ -23,21 +33,28 @@ export function recalculateWindowPosition(props: WindowPositionCalculationProps,
   }
 
   let { outOfBounds, boundsExceededDiff } = checkBounds(resultingPosition, state, props)
-  for (let i = 0; (i < props.boundsCorrectionStrategies.length && outOfBounds); i++) {
+  for (let i = 0; i < props.boundsCorrectionStrategies.length && outOfBounds; i++) {
     const boundsCorrectionStrategy = props.boundsCorrectionStrategies[i]
-    const oldPosition = {...resultingPosition}
+    const oldPosition = { ...resultingPosition }
 
     if (boundsCorrectionStrategy.applyOnlyIf) {
       const props = {
-        horizontalOutOfBounds: (boundsExceededDiff.nearX > 0 || boundsExceededDiff.farX > 0),
-        verticalOutOfBounds: (boundsExceededDiff.nearY > 0 || boundsExceededDiff.farY > 0),
+        horizontalOutOfBounds: boundsExceededDiff.nearX > 0 || boundsExceededDiff.farX > 0,
+        verticalOutOfBounds: boundsExceededDiff.nearY > 0 || boundsExceededDiff.farY > 0,
       }
       if (!boundsCorrectionStrategy.applyOnlyIf(props)) {
         continue
       }
     }
 
-    const boundsCorrection = getBoundsCorrectedPosition(state, positionWithoutOffset, initialOffset, mutableOffsetProps, boundsCorrectionStrategy, boundsExceededDiff)
+    const boundsCorrection = getBoundsCorrectedPosition(
+      state,
+      positionWithoutOffset,
+      initialOffset,
+      mutableOffsetProps,
+      boundsCorrectionStrategy,
+      boundsExceededDiff
+    )
     mutableOffsetProps = boundsCorrection.mutableOffsetProps
     resultingPosition = boundsCorrection.resultingPosition
 
@@ -61,8 +78,8 @@ function getBoundsCorrectedPosition(
   positionWithoutOffset: XY,
   initialOffset: XY,
   mutableOffsetProps: Offsets,
-  boundsCorrectionStrategy: BoundsCorrectionStrategy, 
-  boundsExceededDiff: BoundsDiff,
+  boundsCorrectionStrategy: BoundsCorrectionStrategy,
+  boundsExceededDiff: BoundsDiff
 ) {
   let resultingPosition: XY
   if (boundsCorrectionStrategy.strategyType === BoundsCorrectionStrategyType.SubtractExcess) {
@@ -78,10 +95,12 @@ function getBoundsCorrectedPosition(
     if (boundsExceededDiff.nearY > 0) {
       resultingPosition.y += boundsExceededDiff.nearY
     }
-  } else if (boundsCorrectionStrategy.strategyType === BoundsCorrectionStrategyType.ReplaceParameters) {
+  } else if (
+    boundsCorrectionStrategy.strategyType === BoundsCorrectionStrategyType.ReplaceParameters
+  ) {
     let position = positionWithoutOffset
     let offset = initialOffset
-    
+
     const newPositionParams = boundsCorrectionStrategy.replacedParameters.position
     if (newPositionParams) {
       position = getPosition(newPositionParams, state)
@@ -89,7 +108,7 @@ function getBoundsCorrectedPosition(
 
     const newOffsets = boundsCorrectionStrategy.replacedParameters.offsets
     if (newOffsets) {
-      mutableOffsetProps = {...mutableOffsetProps, ...newOffsets}
+      mutableOffsetProps = { ...mutableOffsetProps, ...newOffsets }
       offset = getOffsetValues(mutableOffsetProps, state)
     }
 
@@ -114,14 +133,20 @@ function getPosition(positionParams: Positions, state): XY {
 
 function getOffsetValues(offsetParams: Offsets, state: windowPositionCalculationState) {
   return {
-    x: offsetParams.horizontal.reduce((prev, curr) => {
-      prev.x += calculateOffset(curr, state).x
-      return prev
-    }, {x: 0, y: 0}).x,
-    y: offsetParams.vertical.reduce((prev, curr) => {
-      prev.y += calculateOffset(curr, state).y
-      return prev
-    }, {x: 0, y: 0}).y
+    x: offsetParams.horizontal.reduce(
+      (prev, curr) => {
+        prev.x += calculateOffset(curr, state).x
+        return prev
+      },
+      { x: 0, y: 0 }
+    ).x,
+    y: offsetParams.vertical.reduce(
+      (prev, curr) => {
+        prev.y += calculateOffset(curr, state).y
+        return prev
+      },
+      { x: 0, y: 0 }
+    ).y,
   }
 }
 
@@ -135,7 +160,7 @@ function calculateOffset(offset: WindowOffset, state: windowPositionCalculationS
     }
   } else if (offset.unit === Unit.ReferenceElementSize) {
     if (!state.refElem) {
-      throw('offset is relative to a reference element, but we have no reference')
+      throw 'offset is relative to a reference element, but we have no reference'
     }
     const refElemBounds = state.refElem.getBoundingClientRect()
 
@@ -166,18 +191,18 @@ function calculateOffset(offset: WindowOffset, state: windowPositionCalculationS
 }
 
 function calculatePosition(position: WindowPosition, state: windowPositionCalculationState) {
-  let referenceBounds: {x: number, y: number}
-  if (position.startIndexAt === RelativePosition.Display) {
+  let referenceBounds: { x: number; y: number }
+  if (position.startAxisAt === RelativePosition.Display) {
     if (position.useCustomDisplay) {
       referenceBounds = position.useCustomDisplay.bounds
     } else {
       referenceBounds = state.parentDisplay.bounds
     }
-  } else if (position.startIndexAt === RelativePosition.ParentWindow) {
+  } else if (position.startAxisAt === RelativePosition.ParentWindow) {
     referenceBounds = state.parentWindowInfo.bounds
-  } else if (position.startIndexAt === RelativePosition.ReferenceElement) {
+  } else if (position.startAxisAt === RelativePosition.ReferenceElement) {
     if (!state.refElem) {
-      throw('offset is relative to parent element, but we have no reference to the parent element')
+      throw 'offset is relative to parent element, but we have no reference to the parent element'
     }
 
     const refElemBounds = state.refElem.getBoundingClientRect()
@@ -199,28 +224,31 @@ function calculatePosition(position: WindowPosition, state: windowPositionCalcul
 }
 
 type BoundsDiff = {
-  nearX: number,
-  farX: number,
-  nearY: number,
-  farY: number,
+  nearX: number
+  farX: number
+  nearY: number
+  farY: number
 }
 
-function checkBounds(position: XY, state: windowPositionCalculationState, props: WindowPositionCalculationProps) {
+function checkBounds(
+  position: XY,
+  state: windowPositionCalculationState,
+  props: WindowPositionCalculationProps
+) {
   const outerBounds = props.correctBoundsRelativeTo || state.parentDisplay.bounds
   const boundsExceededDiff: BoundsDiff = {
-    farX: (position.x + state.wb.width) - (outerBounds.x + outerBounds.width),
+    farX: position.x + state.wb.width - (outerBounds.x + outerBounds.width),
     nearX: outerBounds.x - position.x,
 
-    farY: (position.y + state.wb.height) - (outerBounds.y + outerBounds.height),
+    farY: position.y + state.wb.height - (outerBounds.y + outerBounds.height),
     nearY: outerBounds.y - position.y,
   }
 
-  const outOfBounds = (
-    (boundsExceededDiff.farX > 0) ||
-    (boundsExceededDiff.nearX > 0) ||
-    (boundsExceededDiff.farY > 0) ||
-    (boundsExceededDiff.nearY > 0)
-  )
+  const outOfBounds =
+    boundsExceededDiff.farX > 0 ||
+    boundsExceededDiff.nearX > 0 ||
+    boundsExceededDiff.farY > 0 ||
+    boundsExceededDiff.nearY > 0
 
   return {
     outOfBounds,

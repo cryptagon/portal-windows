@@ -44,7 +44,7 @@ type updateType = {
 
 const unsubscribers: { [frameName in WindowFrameName]?: () => void } = {}
 
-export const createPortalWindowComponent = (props: PortalConstructorProps, win: Window, log: GenericLogger, logIfDebug: GenericLogger): React.FunctionComponent => {
+export const createPortalWindowComponent = (props: PortalConstructorProps, win: Window, log: GenericLogger, logIfDebug: GenericLogger) => {
   const { frameName, parentFrameName, initialMessage, options, windowOptionsString } = props
 
   // TODO: find a better name for this

@@ -1,24 +1,24 @@
-import { Display, WH, Rectangle, WindowInfoUpdateMessage } from "@portal-windows/core"
+import { Display, WH, Rectangle, WindowInfoUpdateMessage } from '@portal-windows/core'
 
 export interface WindowPositionCalculationProps {
-  position: Positions,
-  offsets: Offsets,
-  correctBoundsRelativeTo?: Rectangle,
-  boundsCorrectionStrategies: BoundsCorrectionStrategy[],
+  position: Positions
+  offsets: Offsets
+  correctBoundsRelativeTo?: Rectangle
+  boundsCorrectionStrategies: BoundsCorrectionStrategy[]
 }
 
 export type Positions = {
-  vertical: WindowPosition,
-  horizontal: WindowPosition,
+  vertical: WindowPosition
+  horizontal: WindowPosition
 }
 
 export type Offsets = {
-  horizontal: WindowOffset[],
-  vertical: WindowOffset[],
+  horizontal: WindowOffset[]
+  vertical: WindowOffset[]
 }
 
 export type WindowPosition = {
-  startIndexAt: RelativePosition
+  startAxisAt: RelativePosition
   useCustomDisplay?: Display
 }
 
@@ -29,7 +29,7 @@ export enum RelativePosition {
 }
 
 export type WindowOffset = {
-  unit: Unit,
+  unit: Unit
   relativeToCustomDisplay?: Display
   value: number
 }
@@ -43,7 +43,7 @@ export enum Unit {
 }
 
 export type BoundsCorrectionStrategy = {
-  strategyType: BoundsCorrectionStrategyType,
+  strategyType: BoundsCorrectionStrategyType
 
   // When strategyType is ReplaceParameters
   replacedParameters?: {
@@ -52,15 +52,12 @@ export type BoundsCorrectionStrategy = {
   }
 
   applyToOnly?: 'horizontalBounds' | 'verticalBounds'
-  applyOnlyIf?: (props: {
-    horizontalOutOfBounds: boolean,
-    verticalOutOfBounds: boolean,
-  }) => boolean
+  applyOnlyIf?: (props: { horizontalOutOfBounds: boolean; verticalOutOfBounds: boolean }) => boolean
 
   nestedStrategies?: BoundsCorrectionStrategy[]
 }
 
 export enum BoundsCorrectionStrategyType {
   SubtractExcess = 'subtractExcess',
-  ReplaceParameters = 'replaceParameters'
+  ReplaceParameters = 'replaceParameters',
 }

@@ -16,7 +16,8 @@
     "packages": [
       "src/core",
       "src/node",
-      "src/renderer"
+      "src/renderer",
+      "examples"
     ]
   },
   "devDependencies": {

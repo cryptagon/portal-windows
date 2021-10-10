@@ -18,10 +18,7 @@ export type PortalConstructorProps = {
   windowOptionsString?: string
 }
 
-export const NewReactPortalWindow = (props: PortalConstructorProps): {
-  component: React.FunctionComponent,
-  win: Window,
-} => {
+export const NewReactPortalWindow = (props: PortalConstructorProps) => {
   const { frameName } = props
 
   const log = loggerWithPrefix(`[reactPortalWindow] [${frameName}] (init)`)

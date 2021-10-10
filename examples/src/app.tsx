@@ -1,5 +1,5 @@
 import { WindowFrameName } from '@portal-windows/core'
-import { NewReactPortalWindow, useWindowStore, windowActions, WindowPositionCalculationProps } from '@portal-windows/renderer'
+import { BoundsCorrectionStrategyType, NewReactPortalWindow, RelativePosition, Unit, useWindowStore, windowActions, WindowPositionCalculationProps } from '@portal-windows/renderer'
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useRef } from 'react'
@@ -8,8 +8,8 @@ import { MAIN_FRAME_NAME, ROTATING_MIRROR_WINDOW, SIMPLE_MIRROR_WINDOW } from '.
 type Props = {}
 const App: React.FunctionComponent<Props> = (props: Props) => {
   useEffect(() => {
-    windowActions.init(MAIN_FRAME_NAME as WindowFrameName)
-    windowActions.setWindowInfo(MAIN_FRAME_NAME, { bounds: { width: 250, height: 350 }})
+    windowActions.init(MAIN_FRAME_NAME)
+    windowActions.setWindowInfo(MAIN_FRAME_NAME, { bounds: { width: 250, height: 350 } })
 
     // optional, just for a fast demo load--but you will want to cache windows in prod,
     // probably before the parent component even mounts
@@ -22,7 +22,7 @@ export default App
 
 const DemoButtons = (props: { frameName: WindowFrameName, text?: string, nestLevel: number }) => {
   const { frameName, text, nestLevel } = props
-  return <div style={{flex: 1, flexDirection: 'column', display: 'flex', justifyContent: 'space-around', alignItems: 'center'}}>
+  return <div style={{ flex: 1, flexDirection: 'column', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
     <h1>Let's demo!</h1>
     {text && <h3>{text}</h3>}
     <p>(window: {frameName})</p>
@@ -36,8 +36,8 @@ const DemoButtons = (props: { frameName: WindowFrameName, text?: string, nestLev
 // cache windows
 function cacheWindows(level: number, frameName: WindowFrameName) {
   if (level < 0) return
-  const simpleMirrorChild = `${frameName}::${SIMPLE_MIRROR_WINDOW}`
-  const rotatingMirrorChild = `${frameName}::${ROTATING_MIRROR_WINDOW}`
+  const simpleMirrorChild = `${frameName}::${SIMPLE_MIRROR_WINDOW}` as WindowFrameName
+  const rotatingMirrorChild = `${frameName}::${ROTATING_MIRROR_WINDOW}` as WindowFrameName
   NewReactPortalWindow({ frameName: simpleMirrorChild, parentFrameName: MAIN_FRAME_NAME })
   NewReactPortalWindow({ frameName: rotatingMirrorChild, parentFrameName: MAIN_FRAME_NAME })
   cacheWindows(level - 1, simpleMirrorChild)
@@ -46,7 +46,7 @@ function cacheWindows(level: number, frameName: WindowFrameName) {
 
 const SimpleMirrorButton = (props: { parentFrameName: WindowFrameName, nestLevel: number }) => {
   const { parentFrameName, nestLevel } = props
-  const frameName = `${parentFrameName}::${SIMPLE_MIRROR_WINDOW}`
+  const frameName = `${parentFrameName}::${SIMPLE_MIRROR_WINDOW}` as WindowFrameName
   const [parentBounds] = useWindowStore(s => [s.windowInfo[parentFrameName]?.bounds])
   const [showMirror, setShowMirror] = useState(false)
   const mirror = useRef<ReturnType<typeof NewReactPortalWindow>>(null)
@@ -59,43 +59,46 @@ const SimpleMirrorButton = (props: { parentFrameName: WindowFrameName, nestLevel
   }
 
   return <>
-    <button style={{height: 40, marginBottom: 8}} onClick={toggleMirrorState}>{showMirror ? 'Hide' : 'Show'} Mirror</button>
+    <button style={{ height: 40, marginBottom: 8 }} onClick={toggleMirrorState}>{showMirror ? 'Hide' : 'Show'} Mirror</button>
     {mirror.current && showMirror &&
       <mirror.current.component
         autoRepositionWindow autoResizeWindowToContents
         position={{
-          horizontal: { relativeTo: 'parentWindowPosition' },
-          vertical: { relativeTo: 'parentWindowPosition' },
+          horizontal: { startAxisAt: RelativePosition.ParentWindow },
+          vertical: { startAxisAt: RelativePosition.ParentWindow },
         }}
         offsets={{
           horizontal: [
-            { value: -1, units: 'portalWindowSizeMultiple' },
-            { value: -5, units: 'px' },
+            { value: -1, unit: Unit.PortalWindowSize },
+            { value: -5, unit: Unit.Pixels },
           ],
           vertical: [],
         }}
         boundsCorrectionStrategies={[
           {
-            strategyType: 'replaceOffsetsOrPosition',
-            replaceOffsetsWith: {
-              horizontal: [
-                { value: 1, units: 'portalWindowSizeMultiple' },
-                { value: 5, units: 'px' },
-              ],
+            strategyType: BoundsCorrectionStrategyType.ReplaceParameters,
+            replacedParameters: {
+              offsets: {
+                horizontal: [
+                  { value: 1, unit: Unit.PortalWindowSize },
+                  { value: 5, unit: Unit.Pixels },
+                ],
+              },
             }
           }
         ]}
       >
-      <div style={{backgroundColor: 'white', width: parentBounds?.width, height: parentBounds?.height}}>
-        <DemoButtons frameName={frameName} nestLevel={nestLevel + 1} />
-      </div>
-    </mirror.current.component>}
+        <div style={{ backgroundColor: 'white', width: parentBounds?.width, height: parentBounds?.height }}>
+          <DemoButtons frameName={frameName} nestLevel={nestLevel + 1} />
+        </div>
+      </mirror.current.component>
+    }
   </>
 }
 
 const RotatingMirrorButton = (props: { parentFrameName: WindowFrameName, nestLevel: number }) => {
   const { parentFrameName, nestLevel } = props
-  const frameName = `${parentFrameName}::${ROTATING_MIRROR_WINDOW}`
+  const frameName = `${parentFrameName}::${ROTATING_MIRROR_WINDOW}` as WindowFrameName
   const [parentBounds] = useWindowStore(s => [s.windowInfo[parentFrameName]?.bounds])
   const [showMirror, setShowMirror] = useState(false)
   const [degreesRotation, setDegreesRotation] = useState(0)
@@ -125,16 +128,16 @@ const RotatingMirrorButton = (props: { parentFrameName: WindowFrameName, nestLev
   }, [showMirror])
 
   return <>
-    <button style={{height: 40, marginBottom: 8}} onClick={toggleMirrorState}>{showMirror ? 'Hide' : 'Show'} Rotating Mirror</button>
+    <button style={{ height: 40, marginBottom: 8 }} onClick={toggleMirrorState}>{showMirror ? 'Hide' : 'Show'} Rotating Mirror</button>
     {mirror.current && showMirror &&
       <mirror.current.component
         autoRepositionWindow autoResizeWindowToContents
         {...position(degreesRotation)}
       >
-        <div style={{backgroundColor: 'white', width: parentBounds?.width, height: parentBounds?.height}} >
+        <div style={{ backgroundColor: 'white', width: parentBounds?.width, height: parentBounds?.height }} >
           <DemoButtons text={`Deg: ${Math.floor(degreesRotation)}`} frameName={frameName} nestLevel={nestLevel + 1} />
         </div>
-    </mirror.current.component>}
+      </mirror.current.component>}
   </>
 }
 
@@ -149,19 +152,19 @@ const position = (angleInDegrees: number): WindowPositionCalculationProps => {
 
   return {
     position: {
-      horizontal: { relativeTo: 'parentWindowPosition' },
-      vertical: { relativeTo: 'parentWindowPosition' },
+      horizontal: { startAxisAt: RelativePosition.ParentWindow },
+      vertical: { startAxisAt: RelativePosition.ParentWindow },
     },
     offsets: {
       horizontal: [
-        { value: 1 * horizontalMultiplier, units: 'portalWindowSizeMultiple' },
-        { value: 5 * horizontalMultiplier, units: 'px' },
+        { value: 1 * horizontalMultiplier, unit: Unit.PortalWindowSize },
+        { value: 5 * horizontalMultiplier, unit: Unit.Pixels },
       ],
       vertical: [
-        { value: 1 * verticalMultiplier, units: 'portalWindowSizeMultiple' },
-        { value: 5 * verticalMultiplier, units: 'px' },
+        { value: 1 * verticalMultiplier, unit: Unit.PortalWindowSize },
+        { value: 5 * verticalMultiplier, unit: Unit.Pixels },
       ],
     },
-    boundsCorrectionStrategies: [ { strategyType: 'subtractExcess' }],
+    boundsCorrectionStrategies: [{ strategyType: BoundsCorrectionStrategyType.SubtractExcess }],
   }
 }
