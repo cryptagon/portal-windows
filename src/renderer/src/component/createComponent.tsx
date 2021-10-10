@@ -1,20 +1,27 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import * as ReactDOM from 'react-dom';
-import { StyleSheetManager } from 'styled-components';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import * as ReactDOM from 'react-dom'
+import { StyleSheetManager } from 'styled-components'
 
 import {
-  clearDebounce, debounce, DebounceStyle, GenericLogger, isMac, loggerWithPrefix, Rectangle, WindowFrameName,
-  WindowInfoSetMessage, WindowIpcTopic
-} from '@portal-windows/core';
+  clearDebounce,
+  debounce,
+  DebounceStyle,
+  GenericLogger,
+  isMac,
+  loggerWithPrefix,
+  Rectangle,
+  WindowFrameName,
+  WindowInfoSetMessage,
+  WindowIpcTopic,
+} from '@portal-windows/core'
 
-import { useWindowStore, windowApi } from '../stores/windowStore';
-import { recalculateWindowPosition } from './positioning';
-import { setStyles } from './styles';
-import { WindowPositionCalculationProps } from './types';
-import { useWindow, WindowContext } from './useWindow';
-import { useUpdatedRef } from './utils';
-import { PortalConstructorProps } from './constructor';
-
+import { useWindowStore, windowApi } from '../stores/windowStore'
+import { recalculateWindowPosition } from './positioning'
+import { setStyles } from './styles'
+import { WindowPositionCalculationProps } from './types'
+import { useWindow, WindowContext } from './useWindow'
+import { useUpdatedRef } from './utils'
+import { PortalConstructorProps } from './constructor'
 
 export type PortalComponentProps = {
   referenceElement?: React.RefObject<Element>
@@ -37,14 +44,19 @@ export type PortalComponentProps = {
 } & WindowPositionCalculationProps
 
 type updateType = {
-  dom?: boolean,
-  parentWindow?: boolean,
-  manualReferenceChanged?: boolean,
+  dom?: boolean
+  parentWindow?: boolean
+  manualReferenceChanged?: boolean
 }
 
 const unsubscribers: { [frameName in WindowFrameName]?: () => void } = {}
 
-export const createPortalWindowComponent = (props: PortalConstructorProps, win: Window, log: GenericLogger, logIfDebug: GenericLogger) => {
+export const createPortalWindowComponent = (
+  props: PortalConstructorProps,
+  win: Window,
+  log: GenericLogger,
+  logIfDebug: GenericLogger
+) => {
   const { frameName, parentFrameName, initialMessage, options, windowOptionsString } = props
 
   // TODO: find a better name for this
@@ -65,11 +77,7 @@ export const createPortalWindowComponent = (props: PortalConstructorProps, win: 
 
   return function ReactPortalComponent(props: PortalComponentProps) {
     const inPlaceRef = useRef<HTMLDivElement>()
-    const [
-      setWindowInfo,
-      windowInfo,
-      parentWindowInfo,
-    ] = useWindowStore(s => [
+    const [setWindowInfo, windowInfo, parentWindowInfo] = useWindowStore((s) => [
       s.actions.setWindowInfo,
       s.windowInfo[frameName],
       s.windowInfo[parentFrameName],
@@ -79,10 +87,13 @@ export const createPortalWindowComponent = (props: PortalConstructorProps, win: 
     const [firstDomUpdate, setFirstDomUpdate] = useState(0)
 
     useLayoutEffect(() => {
-      setStyles(win, `html, body {
+      setStyles(
+        win,
+        `html, body {
         background: none !important;
         ${options?.noScroll ? 'overflow: hidden !important;' : ''}
-      }`)
+      }`
+      )
     }, [])
 
     const firstShowDebounceId = 'react-portal-first-show' + frameName
@@ -98,11 +109,17 @@ export const createPortalWindowComponent = (props: PortalConstructorProps, win: 
         props.onFirstShow?.()
       }
 
-      if (firstDomUpdate) { // attempting to reduce flicker by showing this after children mount and window resizes
+      if (firstDomUpdate) {
+        // attempting to reduce flicker by showing this after children mount and window resizes
         clearDebounce(firstShowDebounceId)
         show('first dom update')
       } else {
-        debounce(firstShowDebounceId, () => show('after initial delay'), 200, DebounceStyle.RESET_ON_NEW)
+        debounce(
+          firstShowDebounceId,
+          () => show('after initial delay'),
+          200,
+          DebounceStyle.RESET_ON_NEW
+        )
       }
 
       const showAfterOverlaying = () => {
@@ -122,13 +139,12 @@ export const createPortalWindowComponent = (props: PortalConstructorProps, win: 
       // The second update function doesn't run with the
       // updated window status of the first update function
       const wi = windowApi.getState().windowInfo
-      const [windowInfo, parentWindowInfo] = [
-        wi[frameName],
-        wi[parentFrameName],
-      ]
+      const [windowInfo, parentWindowInfo] = [wi[frameName], wi[parentFrameName]]
 
       let updateSize = props.autoResizeWindowToContents && update.dom
-      let updatePosition = (props.autoRepositionWindow && (update.parentWindow || updateSize)) || update.manualReferenceChanged
+      let updatePosition =
+        (props.autoRepositionWindow && (update.parentWindow || updateSize)) ||
+        update.manualReferenceChanged
 
       // TODO: check if this is still needed, with
       // the addition of the `queuedUpdates` object
@@ -145,13 +161,19 @@ export const createPortalWindowComponent = (props: PortalConstructorProps, win: 
         // This lets dom update trigger other types of windows, even if it doesn't have the dependencies (window and parent window bounds)
         // because those updates will trigger the dom's updates if they arrive soon after
         updateSize = updateSize || props.autoResizeWindowToContents
-        updatePosition = updatePosition || props.initiallyRepositionWindow || props.autoRepositionWindow
+        updatePosition =
+          updatePosition || props.initiallyRepositionWindow || props.autoRepositionWindow
       }
 
       if (!updateSize && !updatePosition) {
         return
       }
-      if (!windowInfo?.bounds || !windowInfo?.display || !parentWindowInfo?.bounds || !ref.current) {
+      if (
+        !windowInfo?.bounds ||
+        !windowInfo?.display ||
+        !parentWindowInfo?.bounds ||
+        !ref.current
+      ) {
         return
       }
 
@@ -205,13 +227,18 @@ export const createPortalWindowComponent = (props: PortalConstructorProps, win: 
     // TODO: enable null checks on this file and clean some of the `updated()` logic up
     const tryUpdate = useUpdatedRef((update: updateType) => {
       Object.assign(queuedUpdates.current, update)
-      debounce('react-portal-update' + frameName, () => {
-        try {
-          updated()
-        } catch (e) {
-          log.info(`frame ${frameName} ran into error:`, e)
-        }
-      }, 50, DebounceStyle.QUEUE_LAST)
+      debounce(
+        'react-portal-update' + frameName,
+        () => {
+          try {
+            updated()
+          } catch (e) {
+            log.info(`frame ${frameName} ran into error:`, e)
+          }
+        },
+        50,
+        DebounceStyle.QUEUE_LAST
+      )
     })
 
     useEffect(() => {
@@ -219,7 +246,7 @@ export const createPortalWindowComponent = (props: PortalConstructorProps, win: 
         return
       }
 
-      (async () => {
+      ;(async () => {
         // @ts-ignore fonts API: https://stackoverflow.com/a/32292880
         await win?.document?.fonts?.ready
         logIfDebug.info('dom update (font load)')
@@ -256,7 +283,7 @@ export const createPortalWindowComponent = (props: PortalConstructorProps, win: 
         if (options?.resizeInsteadOfHide) {
           log.info('resizing window to 1x1 to prevent parent window being focused')
           setWindowInfo(frameName, { frameName: frameName, bounds: { width: 1, height: 1 } })
-          const unsubscribe = windowApi.subscribe(s => {
+          const unsubscribe = windowApi.subscribe((s) => {
             if (s.windowInfo[parentFrameName].focused) {
               log.info('actually hiding window after resize')
               setWindowInfo(frameName, { frameName: frameName, visibility: { show: false } })
@@ -284,13 +311,15 @@ export const createPortalWindowComponent = (props: PortalConstructorProps, win: 
         return
       }
 
-      const observer = new ResizeObserver(entries => {
+      const observer = new ResizeObserver((entries) => {
         logIfDebug.info('dom update (resizeobserver)')
         tryUpdate.current({ dom: true })
       })
       observer.observe(firstChild)
 
-      return () => { observer.disconnect() }
+      return () => {
+        observer.disconnect()
+      }
     }, [firstChild])
 
     useLayoutEffect(() => {
@@ -298,14 +327,14 @@ export const createPortalWindowComponent = (props: PortalConstructorProps, win: 
       return () => removeHide()
     }, [props.forceHide])
 
-    const contents = <StyleSheetManager target={win.document.head}>
-      {props.children}
-    </StyleSheetManager>
+    const contents = (
+      <StyleSheetManager target={win.document.head}>{props.children}</StyleSheetManager>
+    )
 
-    return <WindowContext.Provider value={win as Window & typeof globalThis}>
-      <div ref={inPlaceRef}>
-        {ReactDOM.createPortal(contents, win.document.body)}
-      </div>
-    </WindowContext.Provider>
+    return (
+      <WindowContext.Provider value={win as Window & typeof globalThis}>
+        <div ref={inPlaceRef}>{ReactDOM.createPortal(contents, win.document.body)}</div>
+      </WindowContext.Provider>
+    )
   }
 }

@@ -20,7 +20,7 @@ export enum WindowFrameName {
 /**
  * Like electron-topic, except exclusively listened to in the context of a single window
  * so, duplicate topics from different windows can be ignored */
- export enum WindowIpcTopic {
+export enum WindowIpcTopic {
   /** For the frontend to request window info */
   REQUEST_WINDOW_INFO = 'request_window_info',
   /** For the desktop to send updates that occur to the actual window,

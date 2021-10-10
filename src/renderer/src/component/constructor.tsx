@@ -1,19 +1,20 @@
 import {
   GenericLogger,
-  loggerWithPrefix, WindowFrameName,
+  loggerWithPrefix,
+  WindowFrameName,
   WindowInfoSetMessage,
-} from '@portal-windows/core';
+} from '@portal-windows/core'
 import React from 'react'
-import { createPortalWindowComponent } from './createComponent';
-import { createPortalWindow } from './createWindow';
+import { createPortalWindowComponent } from './createComponent'
+import { createPortalWindow } from './createWindow'
 
 export type PortalConstructorProps = {
-  frameName: WindowFrameName,
-  parentFrameName: WindowFrameName,
-  initialMessage?: Partial<WindowInfoSetMessage>,
+  frameName: WindowFrameName
+  parentFrameName: WindowFrameName
+  initialMessage?: Partial<WindowInfoSetMessage>
   options?: {
-    noScroll?: boolean,
-    resizeInsteadOfHide?: boolean,
+    noScroll?: boolean
+    resizeInsteadOfHide?: boolean
   }
   windowOptionsString?: string
 }

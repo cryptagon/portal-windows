@@ -1,11 +1,14 @@
 import {
   GenericLogger,
-    isMac, loggerWithPrefix, WindowFrameName,
-    WindowInfoSetMessage, WindowIpcTopic
-} from '@portal-windows/core';
-import { PortalConstructorProps } from './constructor';
+  isMac,
+  loggerWithPrefix,
+  WindowFrameName,
+  WindowInfoSetMessage,
+  WindowIpcTopic,
+} from '@portal-windows/core'
+import { PortalConstructorProps } from './constructor'
 
-import { windowApi } from '../stores/windowStore';
+import { windowApi } from '../stores/windowStore'
 
 export const createPortalWindow = (props: PortalConstructorProps, log: GenericLogger): Window => {
   const { frameName, parentFrameName, initialMessage, options, windowOptionsString } = props
@@ -28,7 +31,7 @@ export const createPortalWindow = (props: PortalConstructorProps, log: GenericLo
       w.location.href = `about:blank?title=${encodeURIComponent(frameName)}`
     }
     if (!w) {
-      throw('undefined window')
+      throw 'undefined window'
     }
 
     win = w
@@ -56,7 +59,10 @@ export const createPortalWindow = (props: PortalConstructorProps, log: GenericLo
       zoom: 1,
       frameName: frameName,
     }
-    win.electronPublish(WindowIpcTopic.SET_WINDOW_INFO, {...msg, onceId: 'id_' + JSON.stringify(msg, null, '') } as WindowInfoSetMessage)
+    win.electronPublish(WindowIpcTopic.SET_WINDOW_INFO, {
+      ...msg,
+      onceId: 'id_' + JSON.stringify(msg, null, ''),
+    } as WindowInfoSetMessage)
   }
   windowApi.getState().actions.pingWindow(frameName).then(next, next)
 

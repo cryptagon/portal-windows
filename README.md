@@ -18,9 +18,9 @@ const mainWindow = new BrowserWindow({
     nativeWindowOpen: true, // so we can use `window.open` to create windows from the renderer
     nodeIntegration: true, // so preload can allow renderer to send messages to node
     contextIsolation: false, // so preload can allow renderer to send messages to node
-    preload: path.join(__dirname, "preload.js"),
+    preload: path.join(__dirname, 'preload.js'),
   },
-});
+})
 
 // Attach listeners for window movement, display change, mouse movement, and system info
 attachWindowStoreListener(mainWindow, MAIN_FRAME_NAME, mainWindow)
@@ -30,12 +30,15 @@ attachSystemInfoListener(mainWindow)
 
 // This is where we store portal windows
 const genericWindowHolder: { [key in WindowFrameName]?: GenericPortalWindow } = {}
-mainWindow.webContents.on('new-window', (event, url, untypedFrameName, disposition, options, additionalFeatures) => {
-  const frameName = untypedFrameName as WindowFrameName
-  event.preventDefault()
-  genericWindowHolder[frameName] = new GenericPortalWindow()
-  event.newGuest = genericWindowHolder[frameName].init(options, frameName as WindowFrameName)
-})
+mainWindow.webContents.on(
+  'new-window',
+  (event, url, untypedFrameName, disposition, options, additionalFeatures) => {
+    const frameName = untypedFrameName as WindowFrameName
+    event.preventDefault()
+    genericWindowHolder[frameName] = new GenericPortalWindow()
+    event.newGuest = genericWindowHolder[frameName].init(options, frameName as WindowFrameName)
+  }
+)
 ```
 
 ## 2. The preload script
@@ -54,7 +57,12 @@ Now, you can use portal windows! Somewhere inside your main window, call `window
 
 ```typescript
 import { WindowFrameName } from '@portal-windows/core'
-import { NewReactPortalWindow, useWindowStore, windowActions, WindowPositionCalculationProps } from '@portal-windows/renderer'
+import {
+  NewReactPortalWindow,
+  useWindowStore,
+  windowActions,
+  WindowPositionCalculationProps,
+} from '@portal-windows/renderer'
 import React, { useEffect, useState } from 'react'
 
 const DEMO_FRAME_NAME = 'demo_window'
@@ -67,13 +75,15 @@ const App: React.FunctionComponent<{}> = () => {
 
     // This (optional) command just shows you how you can manually set window bounds
     // (note how the main window gets spawned with a different size in `node.ts`)
-    windowActions.setWindowInfo(MAIN_FRAME_NAME, { bounds: { width: 250, height: 350 }})
+    windowActions.setWindowInfo(MAIN_FRAME_NAME, { bounds: { width: 250, height: 350 } })
   }, [])
 
-  return <div>
-    <h1>Demo!</h1>
-    <DemoWindowButton />
-  </div>
+  return (
+    <div>
+      <h1>Demo!</h1>
+      <DemoWindowButton />
+    </div>
+  )
 }
 export default App
 
@@ -106,15 +116,17 @@ const demoWindowPosition: WindowPositionCalculationProps = {
           { value: 1, units: 'portalWindowSizeMultiple' },
           { value: 5, units: 'px' },
         ],
-      }
-    }
+      },
+    },
   ],
 }
 
-
 // Since we know the amount of windows we're rendering here, we can create the window on app load to save time
 // (rather than creating the window when the button is clicked, which will result in a short delay)
-const DemoWindow = NewReactPortalWindow({ frameName: DEMO_FRAME_NAME, parentFrameName: MAIN_FRAME_NAME })
+const DemoWindow = NewReactPortalWindow({
+  frameName: DEMO_FRAME_NAME,
+  parentFrameName: MAIN_FRAME_NAME,
+})
 const DemoWindowButton = () => {
   if (!DemoWindow) {
     // This means there was a failure to create the portal window,
@@ -125,34 +137,49 @@ const DemoWindowButton = () => {
   // We can use windowStore to get information about windows, displays, and mouse positions.
   // We don't need to use it for positioning logic here, but we'll be replicating the
   // main window's size in this demo (shown below).
-  const [parentBounds] = useWindowStore(s => [s.windowInfo[MAIN_FRAME_NAME]?.bounds])
+  const [parentBounds] = useWindowStore((s) => [s.windowInfo[MAIN_FRAME_NAME]?.bounds])
 
   const [showWindow, setShowWindow] = useState(false)
   const toggleWindowState = () => setShowWindow(!showWindow)
 
-  return <>
-    <button style={{height: 40, marginBottom: 8}} onClick={toggleWindowState}>{showWindow ? 'Hide' : 'Show'} Window</button>
+  return (
+    <>
+      <button style={{ height: 40, marginBottom: 8 }} onClick={toggleWindowState}>
+        {showWindow ? 'Hide' : 'Show'} Window
+      </button>
 
-    {/*
+      {/*
       By passing in autoRepositionWindow, we update the demo window's position as it's being rendered
       (as opposed to only on the first show)
     */}
-    {showWindow && <DemoWindow.component autoRepositionWindow autoResizeWindowToContents {...demoWindowPosition}>
-      {/*
+      {showWindow && (
+        <DemoWindow.component
+          autoRepositionWindow
+          autoResizeWindowToContents
+          {...demoWindowPosition}
+        >
+          {/*
         This div, being the first element inside the window component, will be used to calculate the size of the window.
         By setting its width and height to its parent's bounds, and enabling `autoResizeWindowToContents` on the window component,
         we have the demo window grow/shrink to replicate the main window's size.
       */}
-      <div style={{backgroundColor: 'white', width: parentBounds?.width, height: parentBounds?.height}}>
-        <h1>Demo window</h1>
-      </div>
-     </DemoWindow.component>}
-  </>
+          <div
+            style={{
+              backgroundColor: 'white',
+              width: parentBounds?.width,
+              height: parentBounds?.height,
+            }}
+          >
+            <h1>Demo window</h1>
+          </div>
+        </DemoWindow.component>
+      )}
+    </>
+  )
 }
 ```
 
 Check out the `examples` folder for more details, and a more complex example!
-
 
 ## Contributing
 

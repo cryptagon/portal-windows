@@ -13,7 +13,7 @@ export class GenericPortalWindow {
     eventOptions: BrowserWindowConstructorOptions,
     frameName: WindowFrameName,
     overlayingProps?: OverlayingProps,
-    overrideOptions?: BrowserWindowConstructorOptions,
+    overrideOptions?: BrowserWindowConstructorOptions
   ) => {
     if (this.window) {
       this.window.destroy()
@@ -50,10 +50,10 @@ export class GenericPortalWindow {
         enableRemoteModule: true,
         affinity: process.platform == 'win32' ? 'tooltip' : undefined,
         preload: path.join(__dirname, `preload.js`),
-        nodeIntegration: false
+        nodeIntegration: false,
       },
 
-      ...(overrideOptions || {})
+      ...(overrideOptions || {}),
     }
 
     let win = new BrowserWindow(options)

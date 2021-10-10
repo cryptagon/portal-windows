@@ -1,6 +1,10 @@
 export const deepCompareIntersection = (obj1: any, obj2: any) =>
-  obj1 === obj2 || typeof obj1 === typeof obj2 && typeof obj1 === "object" &&
-    Object.keys(obj1).every(key => !obj2.hasOwnProperty(key) || deepCompareIntersection(obj1[key], obj2[key]))
+  obj1 === obj2 ||
+  (typeof obj1 === typeof obj2 &&
+    typeof obj1 === 'object' &&
+    Object.keys(obj1).every(
+      (key) => !obj2.hasOwnProperty(key) || deepCompareIntersection(obj1[key], obj2[key])
+    ))
 
 export interface GenericLogger {
   info(...any): void
@@ -8,7 +12,7 @@ export interface GenericLogger {
   debug(...any): void
 }
 
-export function loggerWithPrefix (prefix: string): GenericLogger {
+export function loggerWithPrefix(prefix: string): GenericLogger {
   return {
     info: (...args: any) => console.log(prefix, ...args),
     error: (...args: any) => console.error(prefix, ...args),
@@ -42,14 +46,15 @@ export const createScopedDebounce = () => {
           timer.wait = wait
           return
         }
-        debounceTimers[id] = { timer: setTimeout(() => {
-          const queued = debounceTimers[id]
-          delete debounceTimers[id]
-          if (queued.queued) debounce(id, queued.queued, queued.wait, style)
-        }, wait) }
+        debounceTimers[id] = {
+          timer: setTimeout(() => {
+            const queued = debounceTimers[id]
+            delete debounceTimers[id]
+            if (queued.queued) debounce(id, queued.queued, queued.wait, style)
+          }, wait),
+        }
         func()
         return
-
 
       case DebounceStyle.IGNORE_NEW:
         if (timer) return
@@ -67,14 +72,13 @@ export const createScopedDebounce = () => {
           delete debounceTimers[id]
         }, wait)
         return
-
     }
   }
 
   const clearDebounce = (id: string) => {
     let timer = debounceTimers[id]
 
-    if (typeof(timer) == 'object') {
+    if (typeof timer == 'object') {
       clearTimeout(timer.timer)
     } else {
       clearTimeout(timer)
@@ -86,10 +90,10 @@ export const createScopedDebounce = () => {
 
   const clearAllDebounces = () => {
     const debounceIds = Object.keys(debounceTimers)
-    debounceIds.forEach(id => clearDebounce(id))
+    debounceIds.forEach((id) => clearDebounce(id))
   }
 
-  return {debounce, clearDebounce, clearAllDebounces}
+  return { debounce, clearDebounce, clearAllDebounces }
 }
 
 const globalDebounce = createScopedDebounce()
