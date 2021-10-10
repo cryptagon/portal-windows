@@ -2,13 +2,17 @@
 
 Render and position windows as simply as you render and position tooltips in your React app.
 
-## Getting started
+Video example [here](https://twitter.com/cyrusroshan/status/1430569363736711171?s=20)!
+
+# Getting started
 
 To use Portal Windows, you'll need to hook up your code in three places:
 
-### 1. The root window
+## 1. The root window
 
-The constructor for your main/root window (found in `node.ts` in `examples`), needs its constructor changed and some listeners attached, in order for portal windows to work:
+### (examples/src/node/preload.ts)
+
+The constructor for your main/root window (found in `node/index.ts` in `examples`), needs its constructor changed and some listeners attached, in order for portal windows to work:
 
 ```typescript
 const mainWindow = new BrowserWindow({
@@ -43,6 +47,8 @@ mainWindow.webContents.on(
 
 ## 2. The preload script
 
+### (examples/src/node/preload.ts)
+
 The preload script just adds listeners for communicating between the node and renderer code. You can add it to your existing preload file (or make an new one) with these two lines:
 
 ```typescript
@@ -53,25 +59,30 @@ preload()
 
 ## 3. Initialize windowStore in the renderer, and use Portal Windows!
 
+### (examples/src/renderer/simpleApp.ts)
+
 Now, you can use portal windows! Somewhere inside your main window, call `windowActions.init`, and you're ready to use portal windows. Here's a simple example (found in `simpleApp.tsx` in the `examples` folder). It creates a demo window positioned next to the main window, with the same size as the main window (resize and see!) and basic bounds correction:
 
 ```typescript
 import { WindowFrameName } from '@portal-windows/core'
 import {
+  BoundsCorrectionStrategyType,
   NewReactPortalWindow,
+  RelativePosition,
+  Unit,
   useWindowStore,
   windowActions,
   WindowPositionCalculationProps,
 } from '@portal-windows/renderer'
 import React, { useEffect, useState } from 'react'
 
-const DEMO_FRAME_NAME = 'demo_window'
-const MAIN_FRAME_NAME = 'main_window'
+const DEMO_FRAME_NAME = 'demo_window' as WindowFrameName
+const MAIN_FRAME_NAME = 'main_window' as WindowFrameName
 
 const App: React.FunctionComponent<{}> = () => {
   useEffect(() => {
     // This init function lets the main window keep track of the positions of its child windows
-    windowActions.init(MAIN_FRAME_NAME as WindowFrameName)
+    windowActions.init(MAIN_FRAME_NAME)
 
     // This (optional) command just shows you how you can manually set window bounds
     // (note how the main window gets spawned with a different size in `node.ts`)
@@ -90,8 +101,8 @@ export default App
 const demoWindowPosition: WindowPositionCalculationProps = {
   // Here, "position" sets the x/y [0,0] coordinates to be relative to the main window
   position: {
-    horizontal: { relativeTo: 'parentWindowPosition' },
-    vertical: { relativeTo: 'parentWindowPosition' },
+    horizontal: { startAxisAt: RelativePosition.ParentWindow },
+    vertical: { startAxisAt: RelativePosition.ParentWindow },
   },
 
   // And here, we set the position of the demo window to be on the left of the main window, with a 5px gap
@@ -99,8 +110,8 @@ const demoWindowPosition: WindowPositionCalculationProps = {
   // of the main window, as their coordinates would be the same)
   offsets: {
     horizontal: [
-      { value: -1, units: 'portalWindowSizeMultiple' },
-      { value: -5, units: 'px' },
+      { value: -1, unit: Unit.PortalWindowSize },
+      { value: -5, unit: Unit.Pixels },
     ],
     vertical: [],
   },
@@ -110,12 +121,14 @@ const demoWindowPosition: WindowPositionCalculationProps = {
   // side to the right side of the main window.
   boundsCorrectionStrategies: [
     {
-      strategyType: 'replaceOffsetsOrPosition',
-      replaceOffsetsWith: {
-        horizontal: [
-          { value: 1, units: 'portalWindowSizeMultiple' },
-          { value: 5, units: 'px' },
-        ],
+      strategyType: BoundsCorrectionStrategyType.ReplaceParameters,
+      replacedParameters: {
+        offsets: {
+          horizontal: [
+            { value: 1, unit: Unit.PortalWindowSize },
+            { value: 5, unit: Unit.Pixels },
+          ],
+        },
       },
     },
   ],
@@ -181,7 +194,7 @@ const DemoWindowButton = () => {
 
 Check out the `examples` folder for more details, and a more complex example!
 
-## Contributing
+# Contributing
 
 First set up yarn berry and import workspace-tools
 
